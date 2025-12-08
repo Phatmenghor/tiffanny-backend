@@ -22,12 +22,10 @@ public abstract class UserMapper {
     @Autowired
     protected PaginationMapper paginationMapper;
 
-    @Mapping(target = "fullName", expression = "java(user.getFullName())")
     @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToEnums")
     public abstract UserResponse toResponse(User user);
 
     @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "fullName", expression = "java(user.getFullName())")
     @Mapping(target = "roles", source = "user.roles", qualifiedByName = "rolesToStrings")
     @Mapping(target = "accessToken", source = "token")
     @Mapping(target = "tokenType", constant = "Bearer")
@@ -46,7 +44,6 @@ public abstract class UserMapper {
         user.setLastName(request.getLastName());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setProfileImageUrl(request.getProfileImageUrl());
-        user.setPosition(request.getPosition());
         user.setAddress(request.getAddress());
         user.setAccountStatus(request.getAccountStatus());
         return user;

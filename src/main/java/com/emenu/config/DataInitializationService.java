@@ -177,7 +177,6 @@ public class DataInitializationService {
                 admin.setPassword(passwordEncoder.encode(defaultAdminPassword));
                 admin.setFirstName("Platform");
                 admin.setLastName("Administrator");
-                admin.setPosition("Platform Owner");
                 admin.setAccountStatus(AccountStatus.ACTIVE);
 
                 Role platformOwnerRole = roleRepository.findByName(RoleEnum.DEVELOPER)
