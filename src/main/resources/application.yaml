@@ -1,15 +1,13 @@
-# application.yml - Cambodia E-Menu Platform Configuration
+# ================================
+#  Tiffany Platform Config
+# ================================
 spring:
   application:
     name: cambodia-tiffany-platform
+
   profiles:
     active: dev
 
-server:
-  port: 9090
-
-
-  # Database Configuration
   datasource:
     url: jdbc:postgresql://152.42.254.193:5432/tiffany_platform
     username: admin_user
@@ -22,7 +20,6 @@ server:
       idle-timeout: 600000
       max-lifetime: 1800000
 
-  # JPA Configuration
   jpa:
     hibernate:
       ddl-auto: update
@@ -35,18 +32,27 @@ server:
         jdbc:
           batch_size: 50
 
-  # Cache Configuration
   cache:
     type: caffeine
     caffeine:
       spec: maximumSize=1000,expireAfterWrite=1h
 
-# JWT telegram
+# ================================
+#  SERVER CONFIG
+# ================================
+server:
+  port: 9090
+
+# ================================
+#  JWT CONFIGURATION
+# ================================
 jwt:
   secret: da2bd42bef8f9f957d647ed13571d35b59css7055fb723eacdsb05154878da17d77d3180385fc232cab38bded0fc7dbda0d439cc275e91164ade266d64d50633bc7
-  expiration: 99999999999999999 # Extended for development
+  expiration: 99999999999999999
 
-# API Documentation
+# ================================
+#  API DOCS / SWAGGER
+# ================================
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -55,7 +61,9 @@ springdoc:
     path: /v3/api-docs
     enabled: true
 
-# Actuator Configuration
+# ================================
+#  ACTUATOR MONITORING
+# ================================
 management:
   endpoints:
     web:
@@ -66,46 +74,51 @@ management:
     health:
       show-details: when-authorized
 
-# Cambodia-Specific Configuration
+# ================================
+#  CAMBODIA SETTINGS
+# ================================
 cambodia:
   timezone: "Asia/Phnom_Penh"
   currency: "USD"
   language: "km"
   country: "KH"
 
-# ===== TELEGRAM CONFIGURATION (MINIMAL) =====
+# ================================
+#  TELEGRAM CONFIG
+# ================================
 telegram:
   bot:
     token: "8464259107:AAHdIC3EZb_3uID4vnhteY6PYtmO9WGDBjU"
     enabled: true
-    group-chat-id: "-1002784141362" # Group chat ID for all platform notifications
+    group-chat-id: "-1002784141362"
 
-# Application Configuration
+# ================================
+#  APPLICATION CONFIG
+# ================================
 app:
   name: "Cambodia Tiffany Platform"
   version: "1.0.0"
   description: "Tiffany Platform for Cambodia with Telegram Integration"
 
-  # Data Initialization
   init:
     create-admin: true
     admin-email: "phatmenghor19@gmail.com"
     admin-password: "88889999"
 
-  # CORS Configuration
   cors:
     allowed-origins: "http://localhost:3000,http://localhost:4200,http://localhost:5173,http://152.42.219.13:8080,https://152.42.219.13:8080,http://152.42.219.13,https://152.42.219.13"
     allowed-methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
     allowed-headers: "*"
     allow-credentials: true
 
-  # Security Configuration
   security:
     token-cleanup:
       enabled: true
 
+# ================================
+#  DEV PROFILE OVERRIDE
+# ================================
 ---
-# Development Profile
 spring:
   config:
     activate:
@@ -116,8 +129,9 @@ spring:
       ddl-auto: update
     show-sql: false
 
-
-# Logging Configuration
+# ================================
+#  LOGGING
+# ================================
 logging:
   level:
     root: INFO
