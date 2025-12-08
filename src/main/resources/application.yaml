@@ -5,6 +5,10 @@ spring:
   profiles:
     active: dev
 
+server:
+  port: 9090
+
+
   # Database Configuration
   datasource:
     url: jdbc:postgresql://152.42.254.193:5432/tiffany_platform

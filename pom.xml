@@ -10,10 +10,10 @@
 	</parent>
 
 	<groupId>com.emenu</groupId>
-	<artifactId>cambodia-emenu-platform</artifactId>
+	<artifactId>tiffany-platform</artifactId>
 	<version>1.0.0</version>
-	<name>cambodia-emenu-platform</name>
-	<description>Cambodia E-Menu Platform - Clean Architecture</description>
+	<name>tiffany-platform</name>
+	<description>Cambodia Tiffany Platform - Clean Architecture</description>
 
 	<properties>
 		<java.version>17</java.version>
