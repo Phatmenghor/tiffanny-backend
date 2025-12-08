@@ -54,22 +54,8 @@ public class User extends BaseUUIDEntity {
     )
     private List<Role> roles;
 
-    @Column(name = "position")
-    private String position;
-
     @Column(name = "address")
     private String address;
-
-    public String getFullName() {
-        if (firstName != null && lastName != null) {
-            return firstName + " " + lastName;
-        } else if (firstName != null) {
-            return firstName;
-        } else if (lastName != null) {
-            return lastName;
-        }
-        return userIdentifier;
-    }
 
     public boolean isActive() {
         return AccountStatus.ACTIVE.equals(accountStatus);

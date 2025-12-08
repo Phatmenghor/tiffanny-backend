@@ -29,26 +29,5 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        authService.logout(token);
-        return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
-    }
 
-    @PostMapping("/change-password")
-    public ResponseEntity<ApiResponse<UserResponse>> changePassword(
-            @Valid @RequestBody PasswordChangeRequest request) {
-        log.info("Password change request");
-        UserResponse response = authService.changePassword(request);
-        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", response));
-    }
-
-    @PostMapping("/admin/reset-password")
-    public ResponseEntity<ApiResponse<UserResponse>> adminResetPassword(
-            @Valid @RequestBody AdminPasswordResetRequest request) {
-        log.info("Admin password reset: {}", request.getUserId());
-        UserResponse response = authService.adminResetPassword(request);
-        return ResponseEntity.ok(ApiResponse.success("Password reset successful", response));
-    }
 }
