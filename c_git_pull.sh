@@ -5,7 +5,7 @@ CURRENT_TIME=$(date "+%Y-%m-%d %H:%M:%S")
 
 git fetch
 
-# Push to master branch
-git pull origin master
+# Push to development branch
+git pull origin development
 
-echo "✅ Code pull form 'master' branch at $CURRENT_TIME"
+echo "✅ Code pull form 'development' branch at $CURRENT_TIME"
