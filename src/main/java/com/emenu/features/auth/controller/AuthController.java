@@ -7,6 +7,7 @@ import com.emenu.features.auth.dto.response.LoginResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.service.AuthService;
 import com.emenu.shared.dto.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +24,11 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest) {
         log.info("Login request: {}", request.getUserIdentifier());
-        LoginResponse response = authService.login(request);
+        LoginResponse response = authService.login(request, httpRequest);
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 

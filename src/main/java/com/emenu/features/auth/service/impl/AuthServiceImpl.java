@@ -8,14 +8,18 @@ import com.emenu.features.auth.dto.request.PasswordChangeRequest;
 import com.emenu.features.auth.dto.response.LoginResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.mapper.UserMapper;
+import com.emenu.features.auth.models.ActivityLog;
 import com.emenu.features.auth.models.Role;
 import com.emenu.features.auth.models.User;
+import com.emenu.features.auth.repository.ActivityLogRepository;
 import com.emenu.features.auth.repository.RoleRepository;
 import com.emenu.features.auth.repository.UserRepository;
 import com.emenu.features.auth.service.AuthService;
 import com.emenu.security.SecurityUtils;
 import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
+import com.emenu.shared.utils.RequestInfoUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.usertype.UserType;
@@ -42,9 +46,11 @@ public class AuthServiceImpl implements AuthService {
     private final JWTGenerator jwtGenerator;
     private final SecurityUtils securityUtils;
     private final TokenBlacklistService tokenBlacklistService;
+    private final ActivityLogRepository activityLogRepository;
+    private final RequestInfoUtil requestInfoUtil;
 
     @Override
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         log.info("Login attempt: {}", request.getUserIdentifier());
 
         try {
@@ -59,6 +65,9 @@ public class AuthServiceImpl implements AuthService {
             
             String token = jwtGenerator.generateAccessToken(authentication);
             LoginResponse response = userMapper.toLoginResponse(user, token);
+
+            // Create activity log after successful login
+            createActivityLog(user, request, httpRequest);
 
             log.info("Login successful: {}", user.getUserIdentifier());
             return response;
@@ -130,5 +139,29 @@ public class AuthServiceImpl implements AuthService {
             return authorizationHeader.substring(7).trim();
         }
         return null;
+    }
+
+    /**
+     * Create activity log entry for successful login
+     */
+    private void createActivityLog(User user, LoginRequest loginRequest, HttpServletRequest httpRequest) {
+        try {
+            ActivityLog activityLog = new ActivityLog();
+            activityLog.setUser(user);
+            activityLog.setProfile(loginRequest.getUserIdentifier());
+            
+            // Extract request information
+            String clientIp = requestInfoUtil.getClientIp(httpRequest);
+            activityLog.setClientIp(clientIp);
+            activityLog.setDevice(requestInfoUtil.getDeviceInfo(httpRequest));
+            activityLog.setPhysicalDevice(requestInfoUtil.getPhysicalDevice(httpRequest));
+            activityLog.setLocation(requestInfoUtil.getLocation(clientIp));
+            
+            activityLogRepository.save(activityLog);
+            log.debug("Activity log created for user: {}", user.getUserIdentifier());
+        } catch (Exception e) {
+            // Don't fail the login if activity log creation fails
+            log.error("Failed to create activity log for user: {}", user.getUserIdentifier(), e);
+        }
     }
 }
