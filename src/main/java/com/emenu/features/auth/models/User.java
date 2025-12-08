@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.usertype.UserType;
 
 import java.util.List;
 
@@ -15,7 +14,6 @@ import java.util.List;
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_deleted", columnList = "is_deleted"),
         @Index(name = "idx_user_identifier", columnList = "user_identifier, is_deleted"),
-        @Index(name = "idx_user_business", columnList = "business_id, is_deleted")
 })
 @Data
 @EqualsAndHashCode(callSuper = true)
