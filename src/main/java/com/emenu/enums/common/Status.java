@@ -5,19 +5,12 @@ import lombok.Getter;
 @Getter
 public enum Status {
     ACTIVE("Active"),
-    INACTIVE("Inactive");
+    INACTIVE("Inactive"),
+    DELETED("DELETED");
 
     private final String description;
 
     Status(String description) {
         this.description = description;
-    }
-
-    public boolean isActive() {
-        return this == ACTIVE;
-    }
-
-    public boolean isInactive() {
-        return this == INACTIVE;
     }
 }

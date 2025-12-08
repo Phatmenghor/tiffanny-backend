@@ -2,11 +2,11 @@ package com.emenu.features.auth.dto.request;
 
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.RoleEnum;
-import com.emenu.enums.user.UserType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.usertype.UserType;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,11 +29,7 @@ public class UserCreateRequest {
     private String profileImageUrl;
     private String position;
     private String address;
-    private String notes;
-    
-    @NotNull(message = "User type is required")
-    private UserType userType;
-    
+
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
     private UUID businessId;
     

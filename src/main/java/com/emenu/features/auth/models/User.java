@@ -1,16 +1,15 @@
 package com.emenu.features.auth.models;
 
 import com.emenu.enums.user.AccountStatus;
-import com.emenu.enums.user.UserType;
 import com.emenu.shared.domain.BaseUUIDEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.usertype.UserType;
 
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users", indexes = {
@@ -46,19 +45,8 @@ public class User extends BaseUUIDEntity {
     private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false)
-    private UserType userType;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "account_status", nullable = false)
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
-
-    @Column(name = "business_id")
-    private UUID businessId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "business_id", insertable = false, updatable = false)
-    private Business business;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -74,9 +62,6 @@ public class User extends BaseUUIDEntity {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "notes")
-    private String notes;
-
     public String getFullName() {
         if (firstName != null && lastName != null) {
             return firstName + " " + lastName;
@@ -90,17 +75,5 @@ public class User extends BaseUUIDEntity {
 
     public boolean isActive() {
         return AccountStatus.ACTIVE.equals(accountStatus);
-    }
-
-    public boolean isPlatformUser() {
-        return UserType.PLATFORM_USER.equals(userType);
-    }
-
-    public boolean isBusinessUser() {
-        return UserType.BUSINESS_USER.equals(userType);
-    }
-
-    public boolean isCustomer() {
-        return UserType.CUSTOMER.equals(userType);
     }
 }

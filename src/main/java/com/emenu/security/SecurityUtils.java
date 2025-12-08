@@ -44,12 +44,12 @@ public class SecurityUtils {
     }
 
     public void validateAccountStatus(User user) {
-        if (user.getAccountStatus() == AccountStatus.SUSPENDED) {
-            throw new ValidationException("Account is suspended");
+        if (user.getAccountStatus() == AccountStatus.DELETED) {
+            throw new ValidationException("Account is DELETED");
         }
 
         if (user.getAccountStatus() == AccountStatus.INACTIVE) {
-            throw new ValidationException("Account is inactive");
+            throw new ValidationException("Account is INACTIVE");
         }
     }
 
@@ -92,19 +92,5 @@ public class SecurityUtils {
             log.debug("Error getting current user (public access mode): {}", e.getMessage());
             return Optional.empty();
         }
-    }
-
-    public UUID getCurrentUserBusinessId() {
-        try {
-            User currentUser = getCurrentUser();
-            return currentUser.getBusinessId();
-        } catch (Exception e) {
-            log.debug("Error getting business ID: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    public UUID getCurrentUserId() {
-        return getCurrentUser().getId();
     }
 }

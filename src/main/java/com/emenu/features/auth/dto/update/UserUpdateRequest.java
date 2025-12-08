@@ -18,5 +18,4 @@ public class UserUpdateRequest {
     private List<RoleEnum> roles;
     private String position;
     private String address;
-    private String notes;
 }

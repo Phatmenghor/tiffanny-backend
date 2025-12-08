@@ -2,8 +2,8 @@ package com.emenu.features.auth.repository;
 
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.RoleEnum;
-import com.emenu.enums.user.UserType;
 import com.emenu.features.auth.models.User;
+import org.hibernate.usertype.UserType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,8 +27,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT DISTINCT u FROM User u " +
             "LEFT JOIN u.roles r " +
             "WHERE u.isDeleted = false " +
-            "AND (:businessId IS NULL OR u.businessId = :businessId) " +
-            "AND (:userTypes IS NULL OR u.userType IN :userTypes) " +
             "AND (:accountStatuses IS NULL OR u.accountStatus IN :accountStatuses) " +
             "AND (:roles IS NULL OR r.name IN :roles) " +
             "AND (:search IS NULL OR :search = '' OR " +
@@ -37,14 +35,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "    LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             "    LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<User> searchUsers(
-            @Param("businessId") UUID businessId,
-            @Param("userTypes") List<UserType> userTypes,
             @Param("accountStatuses") List<AccountStatus> accountStatuses,
             @Param("roles") List<RoleEnum> roles,
             @Param("search") String search,
             Pageable pageable
     );
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.businessId = :businessId AND u.isDeleted = false")
-    long countByBusinessId(@Param("businessId") UUID businessId);
 }

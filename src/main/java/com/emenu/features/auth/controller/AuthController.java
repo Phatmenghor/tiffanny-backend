@@ -3,7 +3,6 @@ package com.emenu.features.auth.controller;
 import com.emenu.features.auth.dto.request.AdminPasswordResetRequest;
 import com.emenu.features.auth.dto.request.LoginRequest;
 import com.emenu.features.auth.dto.request.PasswordChangeRequest;
-import com.emenu.features.auth.dto.request.RegisterRequest;
 import com.emenu.features.auth.dto.response.LoginResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.service.AuthService;
@@ -35,14 +34,6 @@ public class AuthController {
         String token = authHeader.replace("Bearer ", "");
         authService.logout(token);
         return ResponseEntity.ok(ApiResponse.success("Logout successful", null));
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("Customer registration: {}", request.getUserIdentifier());
-        UserResponse response = authService.registerCustomer(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Customer registration successful", response));
     }
 
     @PostMapping("/change-password")

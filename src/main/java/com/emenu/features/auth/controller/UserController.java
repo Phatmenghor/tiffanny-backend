@@ -1,9 +1,7 @@
 package com.emenu.features.auth.controller;
 
 import com.emenu.features.auth.dto.filter.UserFilterRequest;
-import com.emenu.features.auth.dto.request.BusinessOwnerCreateRequest;
 import com.emenu.features.auth.dto.request.UserCreateRequest;
-import com.emenu.features.auth.dto.response.BusinessOwnerCreateResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.dto.update.UserUpdateRequest;
 import com.emenu.features.auth.service.UserService;
@@ -85,14 +83,5 @@ public class UserController {
         log.info("Delete user: {}", userId);
         UserResponse response = userService.deleteUser(userId);
         return ResponseEntity.ok(ApiResponse.success("User deleted", response));
-    }
-
-    @PostMapping("/business-owner")
-    public ResponseEntity<ApiResponse<BusinessOwnerCreateResponse>> createBusinessOwner(
-            @Valid @RequestBody BusinessOwnerCreateRequest request) {
-        log.info("Create business owner: {}", request.getOwnerUserIdentifier());
-        BusinessOwnerCreateResponse response = userService.createBusinessOwner(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Business owner created", response));
     }
 }

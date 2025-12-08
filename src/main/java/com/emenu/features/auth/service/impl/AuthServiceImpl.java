@@ -1,12 +1,10 @@
 package com.emenu.features.auth.service.impl;
 
 import com.emenu.enums.user.RoleEnum;
-import com.emenu.enums.user.UserType;
 import com.emenu.exception.custom.ValidationException;
 import com.emenu.features.auth.dto.request.AdminPasswordResetRequest;
 import com.emenu.features.auth.dto.request.LoginRequest;
 import com.emenu.features.auth.dto.request.PasswordChangeRequest;
-import com.emenu.features.auth.dto.request.RegisterRequest;
 import com.emenu.features.auth.dto.response.LoginResponse;
 import com.emenu.features.auth.dto.response.UserResponse;
 import com.emenu.features.auth.mapper.UserMapper;
@@ -20,6 +18,7 @@ import com.emenu.security.jwt.JWTGenerator;
 import com.emenu.security.jwt.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.usertype.UserType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -68,28 +67,6 @@ public class AuthServiceImpl implements AuthService {
             log.warn("Login failed: {}", request.getUserIdentifier());
             throw new ValidationException("Invalid credentials");
         }
-    }
-
-    @Override
-    public UserResponse registerCustomer(RegisterRequest request) {
-        log.info("Customer registration: {}", request.getUserIdentifier());
-
-        if (userRepository.existsByUserIdentifierAndIsDeletedFalse(request.getUserIdentifier())) {
-            throw new ValidationException("User identifier already exists");
-        }
-
-        User user = userMapper.toEntity(request);
-        user.setUserType(UserType.CUSTOMER);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        Role customerRole = roleRepository.findByName(RoleEnum.CUSTOMER)
-                .orElseThrow(() -> new ValidationException("Customer role not found"));
-        user.setRoles(List.of(customerRole));
-
-        User savedUser = userRepository.save(user);
-        
-        log.info("Customer registered: {}", savedUser.getUserIdentifier());
-        return userMapper.toResponse(savedUser);
     }
 
     @Override

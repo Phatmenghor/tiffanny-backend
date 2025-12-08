@@ -15,13 +15,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${app.name:E-Menu SaaS Platform}")
+    @Value("${app.name}")
     private String appName;
 
-    @Value("${app.version:1.0.0}")
+    @Value("${app.version}")
     private String appVersion;
 
-    @Value("${app.description:Simple E-Menu Platform for Restaurant Management}")
+    @Value("${app.description}")
     private String appDescription;
 
     @Value("${server.url:http://localhost:8080}")
@@ -39,10 +39,10 @@ public class OpenApiConfig {
                         .contact(new Contact()
                                 .name("E-Menu Platform Support")
                                 .email("support@emenu-platform.com")
-                                .url("https://emenu-platform.com/support"))
+                                .url("https://tiffany-platform.com/support"))
                         .license(new License()
                                 .name("Proprietary")
-                                .url("https://emenu-platform.com/license")))
+                                .url("https://tiffany-platform.com/license")))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",

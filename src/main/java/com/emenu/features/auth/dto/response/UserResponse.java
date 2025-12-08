@@ -2,10 +2,10 @@ package com.emenu.features.auth.dto.response;
 
 import com.emenu.enums.user.AccountStatus;
 import com.emenu.enums.user.RoleEnum;
-import com.emenu.enums.user.UserType;
 import com.emenu.shared.dto.BaseAuditResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.usertype.UserType;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,12 +21,10 @@ public class UserResponse extends BaseAuditResponse {
     private String fullName;
     private String phoneNumber;
     private String profileImageUrl;
-    private UserType userType;
     private AccountStatus accountStatus;
     private List<RoleEnum> roles;
     private String position;
     private String address;
-    private String notes;
     private UUID businessId;
     private String businessName;
 }
