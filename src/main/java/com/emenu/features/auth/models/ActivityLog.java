@@ -8,12 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "activity_logs", indexes = {
-        @Index(name = "idx_activity_log_user_id", columnList = "user_id"),
-        @Index(name = "idx_activity_log_deleted", columnList = "is_deleted"),
-        @Index(name = "idx_activity_log_created_at", columnList = "created_at"),
-        @Index(name = "idx_activity_log_client_ip", columnList = "client_ip")
-})
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

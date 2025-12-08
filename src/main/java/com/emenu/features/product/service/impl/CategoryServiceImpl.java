@@ -1,14 +1,19 @@
-package com.emenu.features.product.service;
+package com.emenu.features.product.service.impl;
 
 import com.emenu.enums.common.Status;
 import com.emenu.exception.custom.NotFoundException;
+import com.emenu.features.product.dto.filter.CategoryFilterRequest;
 import com.emenu.features.product.dto.request.CategoryRequest;
 import com.emenu.features.product.dto.response.CategoryResponse;
 import com.emenu.features.product.mapper.CategoryMapper;
 import com.emenu.features.product.models.Category;
 import com.emenu.features.product.repository.CategoryRepository;
+import com.emenu.features.product.service.CategoryService;
+import com.emenu.features.product.specification.CategorySpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse updateCategory(UUID id, CategoryRequest request) {
         log.info("Updating category with ID: {}", id);
         
-        Category category = categoryRepository.findByIdAndNotDeleted(id)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id));
         
         categoryMapper.updateEntity(request, category);
@@ -56,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategory(UUID id) {
         log.info("Deleting category with ID: {}", id);
         
-        Category category = categoryRepository.findByIdAndNotDeleted(id)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id));
         
         category.softDelete();
@@ -70,7 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse getCategoryById(UUID id) {
         log.info("Fetching category with ID: {}", id);
         
-        Category category = categoryRepository.findByIdAndNotDeleted(id)
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id));
         
         return categoryMapper.toResponse(category);
@@ -81,7 +86,10 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponse> getAllCategories() {
         log.info("Fetching all active categories");
         
-        return categoryRepository.findAllActive().stream()
+        // Use specification to find all active (non-deleted) categories
+        return categoryRepository.findAll(
+                CategorySpecification.filterCategories(null, null, null, null)
+        ).stream()
                 .map(categoryMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -91,8 +99,27 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponse> getCategoriesByStatus(Status status) {
         log.info("Fetching categories with status: {}", status);
         
-        return categoryRepository.findByStatus(status).stream()
+        // Use specification to filter by status
+        return categoryRepository.findAll(
+                CategorySpecification.filterCategories(null, status, null, null)
+        ).stream()
                 .map(categoryMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CategoryResponse> filterCategories(CategoryFilterRequest filter, Pageable pageable) {
+        log.info("Filtering categories with criteria: {}", filter);
+        
+        return categoryRepository.findAll(
+                CategorySpecification.filterCategories(
+                    filter.getSearchTerm(),
+                    filter.getStatus(),
+                    filter.getCreatedFrom(),
+                    filter.getCreatedTo()
+                ),
+                pageable
+        ).map(categoryMapper::toResponse);
     }
 }

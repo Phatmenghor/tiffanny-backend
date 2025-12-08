@@ -62,16 +62,16 @@ public class ProductPromotionController {
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<ApiResponse<ProductPromotionResponse>> getPromotionByProduct(@PathVariable UUID productId) {
-        log.info("Fetching promotion by product: {}", productId);
-        ProductPromotionResponse response = promotionService.getPromotionByProduct(productId);
+    public ResponseEntity<ApiResponse<List<ProductPromotionResponse>>> getPromotionByProduct(@PathVariable UUID productId) {
+        log.info("Fetching promotion for product: {}", productId);
+        List<ProductPromotionResponse> response = promotionService.getPromotionByProduct(productId);
         return ResponseEntity.ok(ApiResponse.success("Promotion retrieved successfully", response));
     }
 
     @GetMapping("/status/{status}")
     public ResponseEntity<ApiResponse<List<ProductPromotionResponse>>> getPromotionsByStatus(@PathVariable Status status) {
         log.info("Fetching promotions by status: {}", status);
-        List<ProductPromotionResponse> responses = promotionService.getPromotionsByStatus(status);
+        List<ProductPromotionResponse> responses = promotionService.getAllPromotions();
         return ResponseEntity.ok(ApiResponse.success("Promotions retrieved successfully", responses));
     }
 }

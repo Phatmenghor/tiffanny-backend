@@ -6,6 +6,7 @@ import com.emenu.features.auth.mapper.ActivityLogMapper;
 import com.emenu.features.auth.models.ActivityLog;
 import com.emenu.features.auth.repository.ActivityLogRepository;
 import com.emenu.features.auth.service.ActivityLogService;
+import com.emenu.features.auth.specification.ActivityLogSpecification;
 import com.emenu.shared.dto.PaginationResponse;
 import com.emenu.shared.mapper.PaginationMapper;
 import com.emenu.shared.pagination.PaginationUtils;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,14 +41,17 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                 pageNo, request.getPageSize(), request.getSortBy(), request.getSortDirection()
         );
 
-        Page<ActivityLog> activityLogPage = activityLogRepository.searchActivityLogs(
+        Specification<ActivityLog> activityLogSpecification = ActivityLogSpecification.filterActivityLogs(
                 request.getUserId(),
                 request.getClientIp(),
+                null, // device - not in current filter request
+                null, // location - not in current filter request
                 request.getStartDate(),
-                request.getEndDate(),
-                request.getSearch(),
-                pageable
+                request.getEndDate()
         );
+
+        // Use specification instead of hardcoded query
+        Page<ActivityLog> activityLogPage = activityLogRepository.findAll(activityLogSpecification, pageable);
 
         return paginationMapper.toPaginationResponse(
                 activityLogPage,
@@ -54,6 +59,24 @@ public class ActivityLogServiceImpl implements ActivityLogService {
                         .map(activityLogMapper::toResponse)
                         .toList()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ActivityLogResponse> filterActivityLogs(ActivityLogFilterRequest filter, Pageable pageable) {
+        log.info("Filtering activity logs with specification");
+
+        return activityLogRepository.findAll(
+                ActivityLogSpecification.filterActivityLogs(
+                        filter.getUserId(),
+                        filter.getClientIp(),
+                        null, // device
+                        null, // location
+                        filter.getStartDate(),
+                        filter.getEndDate()
+                ),
+                pageable
+        ).map(activityLogMapper::toResponse);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.emenu.features.product.service;
+package com.emenu.features.product.service.impl;
 
 import com.emenu.enums.common.Status;
 import com.emenu.exception.custom.NotFoundException;
@@ -7,6 +7,8 @@ import com.emenu.features.product.dto.response.ProductResponse;
 import com.emenu.features.product.mapper.ProductMapper;
 import com.emenu.features.product.models.*;
 import com.emenu.features.product.repository.*;
+import com.emenu.features.product.service.ProductService;
+import com.emenu.features.product.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,13 +34,13 @@ public class ProductServiceImpl implements ProductService {
         log.info("Creating new product: {}", request.getName());
         
         // Validate category
-        Category category = categoryRepository.findByIdAndNotDeleted(request.getCategoryId())
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + request.getCategoryId()));
         
         // Validate subcategory if provided
         SubCategory subCategory = null;
         if (request.getSubCategoryId() != null) {
-            subCategory = subCategoryRepository.findByIdAndNotDeleted(request.getSubCategoryId())
+            subCategory = subCategoryRepository.findByIdAndIsDeletedFalse(request.getSubCategoryId())
                     .orElseThrow(() -> new NotFoundException("SubCategory not found with ID: " + request.getSubCategoryId()));
         }
         
@@ -86,12 +88,12 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateProduct(UUID id, ProductRequest request) {
         log.info("Updating product with ID: {}", id);
         
-        Product product = productRepository.findByIdAndNotDeleted(id)
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
         
         // Update category if changed
         if (!product.getCategory().getId().equals(request.getCategoryId())) {
-            Category category = categoryRepository.findByIdAndNotDeleted(request.getCategoryId())
+            Category category = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId())
                     .orElseThrow(() -> new NotFoundException("Category not found with ID: " + request.getCategoryId()));
             product.setCategory(category);
         }
@@ -99,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
         // Update subcategory if changed
         if (request.getSubCategoryId() != null) {
             if (product.getSubCategory() == null || !product.getSubCategory().getId().equals(request.getSubCategoryId())) {
-                SubCategory subCategory = subCategoryRepository.findByIdAndNotDeleted(request.getSubCategoryId())
+                SubCategory subCategory = subCategoryRepository.findByIdAndIsDeletedFalse(request.getSubCategoryId())
                         .orElseThrow(() -> new NotFoundException("SubCategory not found with ID: " + request.getSubCategoryId()));
                 product.setSubCategory(subCategory);
             }
@@ -151,7 +153,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(UUID id) {
         log.info("Deleting product with ID: {}", id);
         
-        Product product = productRepository.findByIdAndNotDeleted(id)
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
         
         product.softDelete();
@@ -165,7 +167,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getProductById(UUID id) {
         log.info("Fetching product with ID: {}", id);
         
-        Product product = productRepository.findByIdAndNotDeleted(id)
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
         
         return productMapper.toResponse(product);
@@ -176,7 +178,10 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> getAllProducts() {
         log.info("Fetching all active products");
         
-        return productRepository.findAllActive().stream()
+        // Use specification to find all active products
+        return productRepository.findAll(
+                ProductSpecification.filterProducts(null, null, null, null, null, null, null, null, null, null, null)
+        ).stream()
                 .map(productMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -186,7 +191,10 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> getProductsByCategory(UUID categoryId) {
         log.info("Fetching products for category ID: {}", categoryId);
         
-        return productRepository.findByCategoryId(categoryId).stream()
+        // Use specification to filter by category
+        return productRepository.findAll(
+                ProductSpecification.filterProducts(null, null, categoryId, null, null, null, null, null, null, null, null)
+        ).stream()
                 .map(productMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -196,7 +204,10 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> getProductsBySubCategory(UUID subCategoryId) {
         log.info("Fetching products for subcategory ID: {}", subCategoryId);
         
-        return productRepository.findBySubCategoryId(subCategoryId).stream()
+        // Use specification to filter by subcategory
+        return productRepository.findAll(
+                ProductSpecification.filterProducts(null, null, null, subCategoryId, null, null, null, null, null, null, null)
+        ).stream()
                 .map(productMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -206,7 +217,10 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> getProductsByStatus(Status status) {
         log.info("Fetching products with status: {}", status);
         
-        return productRepository.findByStatus(status).stream()
+        // Use specification to filter by status
+        return productRepository.findAll(
+                ProductSpecification.filterProducts(null, status, null, null, null, null, null, null, null, null, null)
+        ).stream()
                 .map(productMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -216,7 +230,7 @@ public class ProductServiceImpl implements ProductService {
     public void incrementProductView(UUID id) {
         log.info("Incrementing product view for ID: {}", id);
         
-        productRepository.findByIdAndNotDeleted(id)
+        productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
         
         productRepository.incrementProductView(id);
@@ -224,3 +238,4 @@ public class ProductServiceImpl implements ProductService {
         log.info("Product view incremented for ID: {}", id);
     }
 }
+

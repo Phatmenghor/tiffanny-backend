@@ -1,6 +1,7 @@
 package com.emenu.features.product.controller;
 
 import com.emenu.enums.common.Status;
+import com.emenu.features.product.dto.filter.CategoryFilterRequest;
 import com.emenu.features.product.dto.request.CategoryRequest;
 import com.emenu.features.product.dto.response.CategoryResponse;
 import com.emenu.features.product.service.CategoryService;
@@ -8,6 +9,8 @@ import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,5 +69,14 @@ public class CategoryController {
         log.info("Fetching categories by status: {}", status);
         List<CategoryResponse> responses = categoryService.getCategoriesByStatus(status);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", responses));
+    }
+
+    @PostMapping("/filter")
+    public ResponseEntity<ApiResponse<Page<CategoryResponse>>> filterCategories(
+            @RequestBody CategoryFilterRequest filter,
+            Pageable pageable) {
+        log.info("Filtering categories with: {}", filter);
+        Page<CategoryResponse> responses = categoryService.filterCategories(filter, pageable);
+        return ResponseEntity.ok(ApiResponse.success("Categories filtered successfully", responses));
     }
 }

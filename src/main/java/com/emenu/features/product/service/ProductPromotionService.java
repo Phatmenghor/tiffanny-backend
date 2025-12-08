@@ -19,7 +19,7 @@ public interface ProductPromotionService {
 
     List<ProductPromotionResponse> getAllPromotions();
 
-    ProductPromotionResponse getPromotionByProduct(UUID productId);
+    List<ProductPromotionResponse> getPromotionByProduct(UUID productId);
 
     List<ProductPromotionResponse> getPromotionsByStatus(Status status);
 }

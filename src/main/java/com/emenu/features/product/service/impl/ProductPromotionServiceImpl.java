@@ -1,4 +1,4 @@
-package com.emenu.features.product.service;
+package com.emenu.features.product.service.impl;
 
 import com.emenu.enums.common.Status;
 import com.emenu.exception.custom.NotFoundException;
@@ -9,6 +9,8 @@ import com.emenu.features.product.models.Product;
 import com.emenu.features.product.models.ProductPromotion;
 import com.emenu.features.product.repository.ProductPromotionRepository;
 import com.emenu.features.product.repository.ProductRepository;
+import com.emenu.features.product.service.ProductPromotionService;
+import com.emenu.features.product.specification.ProductPromotionSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
     public ProductPromotionResponse createPromotion(ProductPromotionRequest request) {
         log.info("Creating new promotion: {}", request.getName());
         
-        Product product = productRepository.findByIdAndNotDeleted(request.getProductId())
+        Product product = productRepository.findByIdAndIsDeletedFalse(request.getProductId())
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + request.getProductId()));
         
         ProductPromotion promotion = promotionMapper.toEntity(request);
@@ -49,12 +51,12 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
     public ProductPromotionResponse updatePromotion(UUID id, ProductPromotionRequest request) {
         log.info("Updating promotion with ID: {}", id);
         
-        ProductPromotion promotion = promotionRepository.findByIdAndNotDeleted(id)
+        ProductPromotion promotion = promotionRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Promotion not found with ID: " + id));
         
         // Update product if changed
         if (!promotion.getProduct().getId().equals(request.getProductId())) {
-            Product product = productRepository.findByIdAndNotDeleted(request.getProductId())
+            Product product = productRepository.findByIdAndIsDeletedFalse(request.getProductId())
                     .orElseThrow(() -> new NotFoundException("Product not found with ID: " + request.getProductId()));
             promotion.setProduct(product);
         }
@@ -71,7 +73,7 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
     public void deletePromotion(UUID id) {
         log.info("Deleting promotion with ID: {}", id);
         
-        ProductPromotion promotion = promotionRepository.findByIdAndNotDeleted(id)
+        ProductPromotion promotion = promotionRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Promotion not found with ID: " + id));
         
         promotion.softDelete();
@@ -85,7 +87,7 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
     public ProductPromotionResponse getPromotionById(UUID id) {
         log.info("Fetching promotion with ID: {}", id);
         
-        ProductPromotion promotion = promotionRepository.findByIdAndNotDeleted(id)
+        ProductPromotion promotion = promotionRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Promotion not found with ID: " + id));
         
         return promotionMapper.toResponse(promotion);
@@ -96,19 +98,22 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
     public List<ProductPromotionResponse> getAllPromotions() {
         log.info("Fetching all active promotions");
         
-        return promotionRepository.findAllActive().stream()
+        // Use specification to find all active promotions
+        return promotionRepository.findAll(
+                ProductPromotionSpecification.filterPromotions(null, null, null, null, null)
+        ).stream()
                 .map(promotionMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ProductPromotionResponse getPromotionByProduct(UUID productId) {
+    public List<ProductPromotionResponse> getPromotionByProduct(UUID productId) {
         log.info("Fetching promotion for product ID: {}", productId);
         
-        return promotionRepository.findByProductId(productId)
-                .map(promotionMapper::toResponse)
-                .orElse(null);
+        return promotionRepository.findByProductIdAndIsDeletedFalse(productId)
+                .map(promotion -> List.of(promotionMapper.toResponse(promotion)))
+                .orElse(List.of());
     }
 
     @Override
@@ -116,7 +121,10 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
     public List<ProductPromotionResponse> getPromotionsByStatus(Status status) {
         log.info("Fetching promotions with status: {}", status);
         
-        return promotionRepository.findByStatus(status).stream()
+        // Use specification to filter by status
+        return promotionRepository.findAll(
+                ProductPromotionSpecification.filterPromotions(null, status, null, null, null)
+        ).stream()
                 .map(promotionMapper::toResponse)
                 .collect(Collectors.toList());
     }

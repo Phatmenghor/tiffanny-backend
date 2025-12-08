@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,8 @@ import java.util.List;
         @Index(name = "idx_product_subcategory_id", columnList = "sub_category_id"),
         @Index(name = "idx_product_name", columnList = "name")
 })
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor

@@ -1,4 +1,4 @@
-package com.emenu.features.product.service;
+package com.emenu.features.product.service.impl;
 
 import com.emenu.enums.common.Status;
 import com.emenu.exception.custom.NotFoundException;
@@ -9,6 +9,8 @@ import com.emenu.features.product.models.Category;
 import com.emenu.features.product.models.SubCategory;
 import com.emenu.features.product.repository.CategoryRepository;
 import com.emenu.features.product.repository.SubCategoryRepository;
+import com.emenu.features.product.service.SubCategoryService;
+import com.emenu.features.product.specification.SubCategorySpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     public SubCategoryResponse createSubCategory(SubCategoryRequest request) {
         log.info("Creating new subcategory: {}", request.getName());
         
-        Category category = categoryRepository.findByIdAndNotDeleted(request.getCategoryId())
+        Category category = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + request.getCategoryId()));
         
         SubCategory subCategory = subCategoryMapper.toEntity(request);
@@ -49,12 +51,12 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     public SubCategoryResponse updateSubCategory(UUID id, SubCategoryRequest request) {
         log.info("Updating subcategory with ID: {}", id);
         
-        SubCategory subCategory = subCategoryRepository.findByIdAndNotDeleted(id)
+        SubCategory subCategory = subCategoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("SubCategory not found with ID: " + id));
         
         // Update category if changed
         if (!subCategory.getCategory().getId().equals(request.getCategoryId())) {
-            Category category = categoryRepository.findByIdAndNotDeleted(request.getCategoryId())
+            Category category = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId())
                     .orElseThrow(() -> new NotFoundException("Category not found with ID: " + request.getCategoryId()));
             subCategory.setCategory(category);
         }
@@ -71,7 +73,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     public void deleteSubCategory(UUID id) {
         log.info("Deleting subcategory with ID: {}", id);
         
-        SubCategory subCategory = subCategoryRepository.findByIdAndNotDeleted(id)
+        SubCategory subCategory = subCategoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("SubCategory not found with ID: " + id));
         
         subCategory.softDelete();
@@ -85,7 +87,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     public SubCategoryResponse getSubCategoryById(UUID id) {
         log.info("Fetching subcategory with ID: {}", id);
         
-        SubCategory subCategory = subCategoryRepository.findByIdAndNotDeleted(id)
+        SubCategory subCategory = subCategoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("SubCategory not found with ID: " + id));
         
         return subCategoryMapper.toResponse(subCategory);
@@ -96,7 +98,10 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     public List<SubCategoryResponse> getAllSubCategories() {
         log.info("Fetching all active subcategories");
         
-        return subCategoryRepository.findAllActive().stream()
+        // Use specification to find all active subcategories
+        return subCategoryRepository.findAll(
+                SubCategorySpecification.filterSubCategories(null, null, null, null, null, null)
+        ).stream()
                 .map(subCategoryMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -106,7 +111,10 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     public List<SubCategoryResponse> getSubCategoriesByCategory(UUID categoryId) {
         log.info("Fetching subcategories for category ID: {}", categoryId);
         
-        return subCategoryRepository.findByCategoryId(categoryId).stream()
+        // Use specification to filter by category
+        return subCategoryRepository.findAll(
+                SubCategorySpecification.filterSubCategories(null, null, categoryId, null, null, null)
+        ).stream()
                 .map(subCategoryMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -116,7 +124,10 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     public List<SubCategoryResponse> getSubCategoriesByStatus(Status status) {
         log.info("Fetching subcategories with status: {}", status);
         
-        return subCategoryRepository.findByStatus(status).stream()
+        // Use specification to filter by status
+        return subCategoryRepository.findAll(
+                SubCategorySpecification.filterSubCategories(null, status, null, null, null, null)
+        ).stream()
                 .map(subCategoryMapper::toResponse)
                 .collect(Collectors.toList());
     }
