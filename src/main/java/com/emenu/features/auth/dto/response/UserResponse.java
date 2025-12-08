@@ -22,8 +22,5 @@ public class UserResponse extends BaseAuditResponse {
     private String profileImageUrl;
     private AccountStatus accountStatus;
     private List<RoleEnum> roles;
-    private String position;
     private String address;
-    private UUID businessId;
-    private String businessName;
 }
