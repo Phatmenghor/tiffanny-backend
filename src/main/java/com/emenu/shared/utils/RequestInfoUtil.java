@@ -120,4 +120,28 @@ public class RequestInfoUtil {
         // For now, just return unknown
         return "Unknown";
     }
+
+    public Double getLatitude(HttpServletRequest request) {
+        String lat = request.getHeader("X-Latitude");
+        if (lat != null && !lat.isEmpty()) {
+            try {
+                return Double.parseDouble(lat);
+            } catch (NumberFormatException e) {
+                log.warn("Invalid latitude header: {}", lat);
+            }
+        }
+        return null;
+    }
+
+    public Double getLongitude(HttpServletRequest request) {
+        String lon = request.getHeader("X-Longitude");
+        if (lon != null && !lon.isEmpty()) {
+            try {
+                return Double.parseDouble(lon);
+            } catch (NumberFormatException e) {
+                log.warn("Invalid longitude header: {}", lon);
+            }
+        }
+        return null;
+    }
 }

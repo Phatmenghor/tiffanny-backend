@@ -28,6 +28,11 @@ public class ActivityLogMapper {
         response.setPhysicalDevice(activityLog.getPhysicalDevice());
         response.setLocation(activityLog.getLocation());
         
+        if (activityLog.getLatitude() != null && activityLog.getLongitude() != null) {
+            response.setGoogleMapUrl("https://www.google.com/maps?q=" + 
+                    activityLog.getLatitude() + "," + activityLog.getLongitude());
+        }
+        
         // Map user information
         if (activityLog.getUser() != null) {
             response.setUserId(activityLog.getUser().getId());

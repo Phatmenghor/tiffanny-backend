@@ -15,6 +15,7 @@ public class ActivityLogResponse extends BaseAuditResponse {
     private String clientIp;
     private String physicalDevice;
     private String location;
+    private String googleMapUrl;
     
     // User information
     private UUID userId;

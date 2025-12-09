@@ -156,6 +156,8 @@ public class AuthServiceImpl implements AuthService {
             activityLog.setDevice(requestInfoUtil.getDeviceInfo(httpRequest));
             activityLog.setPhysicalDevice(requestInfoUtil.getPhysicalDevice(httpRequest));
             activityLog.setLocation(requestInfoUtil.getLocation(clientIp));
+            activityLog.setLatitude(requestInfoUtil.getLatitude(httpRequest));
+            activityLog.setLongitude(requestInfoUtil.getLongitude(httpRequest));
             
             activityLogRepository.save(activityLog);
             log.debug("Activity log created for user: {}", user.getUserIdentifier());
