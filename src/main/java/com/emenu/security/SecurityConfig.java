@@ -84,7 +84,7 @@ public class SecurityConfig {
         configuration.addAllowedOriginPattern("https://localhost:*");
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*", "X-Latitude", "X-Longitude"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Disposition", "Content-Type"));
         configuration.setMaxAge(3600L);

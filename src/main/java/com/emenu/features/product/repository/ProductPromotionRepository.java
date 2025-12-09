@@ -11,9 +11,6 @@ import java.util.UUID;
 @Repository
 public interface ProductPromotionRepository extends JpaRepository<ProductPromotion, UUID>,
                                                      JpaSpecificationExecutor<ProductPromotion> {
-
-    // Use specification-based queries instead of hardcoded @Query
-    // All filtering logic is now in ProductPromotionSpecification
     
     Optional<ProductPromotion> findByIdAndIsDeletedFalse(UUID id);
     

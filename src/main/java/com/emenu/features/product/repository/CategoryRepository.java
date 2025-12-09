@@ -11,9 +11,5 @@ import java.util.UUID;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, UUID>, 
                                            JpaSpecificationExecutor<Category> {
-
-    // Use specification-based queries instead of hardcoded @Query
-    // All filtering logic is now in CategorySpecification
-    
     Optional<Category> findByIdAndIsDeletedFalse(UUID id);
 }
