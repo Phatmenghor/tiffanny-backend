@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto createCategory(CreateCategoryRequest request) {
         log.info("Creating new category: {}", request.getName());
 
-        if(categoryRepository.existByName(request.getName())) {
+        if(categoryRepository.existsByName(request.getName())) {
             log.info("Category with name {} failed to create", request.getName());
             throw new AlreadyExistException("Category with name " + request.getName() + " Already exist!");
         }
