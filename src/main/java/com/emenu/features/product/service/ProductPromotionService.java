@@ -1,25 +1,24 @@
 package com.emenu.features.product.service;
 
 import com.emenu.enums.common.Status;
-import com.emenu.features.product.dto.request.ProductPromotionRequest;
-import com.emenu.features.product.dto.response.ProductPromotionResponse;
+import com.emenu.features.product.dto.request.AllProductPromotionRequest;
+import com.emenu.features.product.dto.request.CreateProductPromotionRequest;
+import com.emenu.features.product.dto.request.UpdateProductPromotionRequest;
+import com.emenu.features.product.dto.response.AllProductPromotionResponseDto;
+import com.emenu.features.product.dto.response.ProductPromotionDto;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface ProductPromotionService {
 
-    ProductPromotionResponse createPromotion(ProductPromotionRequest request);
+    ProductPromotionDto createPromotion(CreateProductPromotionRequest request);
 
-    ProductPromotionResponse updatePromotion(UUID id, ProductPromotionRequest request);
+    ProductPromotionDto updatePromotion(UUID id, UpdateProductPromotionRequest request);
 
     void deletePromotion(UUID id);
 
-    ProductPromotionResponse getPromotionById(UUID id);
+    ProductPromotionDto getPromotionById(UUID id);
 
-    List<ProductPromotionResponse> getAllPromotions();
-
-    List<ProductPromotionResponse> getPromotionByProduct(UUID productId);
-
-    List<ProductPromotionResponse> getPromotionsByStatus(Status status);
+    AllProductPromotionResponseDto getAllPromotions(AllProductPromotionRequest request);
 }

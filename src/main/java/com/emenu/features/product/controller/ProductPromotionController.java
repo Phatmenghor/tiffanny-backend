@@ -1,8 +1,11 @@
 package com.emenu.features.product.controller;
 
 import com.emenu.enums.common.Status;
-import com.emenu.features.product.dto.request.ProductPromotionRequest;
-import com.emenu.features.product.dto.response.ProductPromotionResponse;
+import com.emenu.features.product.dto.request.AllProductPromotionRequest;
+import com.emenu.features.product.dto.request.CreateProductPromotionRequest;
+import com.emenu.features.product.dto.request.UpdateProductPromotionRequest;
+import com.emenu.features.product.dto.response.AllProductPromotionResponseDto;
+import com.emenu.features.product.dto.response.ProductPromotionDto;
 import com.emenu.features.product.service.ProductPromotionService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -24,19 +27,19 @@ public class ProductPromotionController {
     private final ProductPromotionService promotionService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductPromotionResponse>> createPromotion(@Valid @RequestBody ProductPromotionRequest request) {
+    public ResponseEntity<ApiResponse<ProductPromotionDto>> createPromotion(@Valid @RequestBody CreateProductPromotionRequest request) {
         log.info("Creating promotion: {}", request.getName());
-        ProductPromotionResponse response = promotionService.createPromotion(request);
+        ProductPromotionDto response = promotionService.createPromotion(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Promotion created successfully", response));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductPromotionResponse>> updatePromotion(
+    public ResponseEntity<ApiResponse<ProductPromotionDto>> updatePromotion(
             @PathVariable UUID id,
-            @Valid @RequestBody ProductPromotionRequest request) {
+            @Valid @RequestBody UpdateProductPromotionRequest request) {
         log.info("Updating promotion: {}", id);
-        ProductPromotionResponse response = promotionService.updatePromotion(id, request);
+        ProductPromotionDto response = promotionService.updatePromotion(id, request);
         return ResponseEntity.ok(ApiResponse.success("Promotion updated successfully", response));
     }
 
@@ -48,30 +51,16 @@ public class ProductPromotionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductPromotionResponse>> getPromotionById(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<ProductPromotionDto>> getPromotionById(@PathVariable UUID id) {
         log.info("Fetching promotion: {}", id);
-        ProductPromotionResponse response = promotionService.getPromotionById(id);
+        ProductPromotionDto response = promotionService.getPromotionById(id);
         return ResponseEntity.ok(ApiResponse.success("Promotion retrieved successfully", response));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductPromotionResponse>>> getAllPromotions() {
+    public ResponseEntity<ApiResponse<AllProductPromotionResponseDto>> getAllPromotions(@RequestBody AllProductPromotionRequest request) {
         log.info("Fetching all promotions");
-        List<ProductPromotionResponse> responses = promotionService.getAllPromotions();
-        return ResponseEntity.ok(ApiResponse.success("Promotions retrieved successfully", responses));
-    }
-
-    @GetMapping("/product/{productId}")
-    public ResponseEntity<ApiResponse<List<ProductPromotionResponse>>> getPromotionByProduct(@PathVariable UUID productId) {
-        log.info("Fetching promotion for product: {}", productId);
-        List<ProductPromotionResponse> response = promotionService.getPromotionByProduct(productId);
-        return ResponseEntity.ok(ApiResponse.success("Promotion retrieved successfully", response));
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<List<ProductPromotionResponse>>> getPromotionsByStatus(@PathVariable Status status) {
-        log.info("Fetching promotions by status: {}", status);
-        List<ProductPromotionResponse> responses = promotionService.getAllPromotions();
+        AllProductPromotionResponseDto responses = promotionService.getAllPromotions(request);
         return ResponseEntity.ok(ApiResponse.success("Promotions retrieved successfully", responses));
     }
 }

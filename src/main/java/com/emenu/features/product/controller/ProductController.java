@@ -1,8 +1,11 @@
 package com.emenu.features.product.controller;
 
 import com.emenu.enums.common.Status;
-import com.emenu.features.product.dto.request.ProductRequest;
-import com.emenu.features.product.dto.response.ProductResponse;
+import com.emenu.features.product.dto.request.AllProductRequest;
+import com.emenu.features.product.dto.request.CreateProductRequest;
+import com.emenu.features.product.dto.request.UpdateProductRequest;
+import com.emenu.features.product.dto.response.AllProductResponseDto;
+import com.emenu.features.product.dto.response.ProductDto;
 import com.emenu.features.product.service.ProductService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -24,19 +27,19 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@Valid @RequestBody ProductRequest request) {
+    public ResponseEntity<ApiResponse<ProductDto>> createProduct(@Valid @RequestBody CreateProductRequest request) {
         log.info("Creating product: {}", request.getName());
-        ProductResponse response = productService.createProduct(request);
+        ProductDto response = productService.createProduct(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Product created successfully", response));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(
+    public ResponseEntity<ApiResponse<ProductDto>> updateProduct(
             @PathVariable UUID id,
-            @Valid @RequestBody ProductRequest request) {
+            @Valid @RequestBody UpdateProductRequest request) {
         log.info("Updating product: {}", id);
-        ProductResponse response = productService.updateProduct(id, request);
+        ProductDto response = productService.updateProduct(id, request);
         return ResponseEntity.ok(ApiResponse.success("Product updated successfully", response));
     }
 
@@ -48,37 +51,16 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductResponse>> getProductById(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<ProductDto>> getProductById(@PathVariable UUID id) {
         log.info("Fetching product: {}", id);
-        ProductResponse response = productService.getProductById(id);
+        ProductDto response = productService.getProductById(id);
         return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", response));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts() {
+    public ResponseEntity<ApiResponse<AllProductResponseDto>> getAllProducts(@RequestBody AllProductRequest request) {
         log.info("Fetching all products");
-        List<ProductResponse> responses = productService.getAllProducts();
-        return ResponseEntity.ok(ApiResponse.success("Products retrieved successfully", responses));
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByCategory(@PathVariable UUID categoryId) {
-        log.info("Fetching products by category: {}", categoryId);
-        List<ProductResponse> responses = productService.getProductsByCategory(categoryId);
-        return ResponseEntity.ok(ApiResponse.success("Products retrieved successfully", responses));
-    }
-
-    @GetMapping("/subcategory/{subCategoryId}")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsBySubCategory(@PathVariable UUID subCategoryId) {
-        log.info("Fetching products by subcategory: {}", subCategoryId);
-        List<ProductResponse> responses = productService.getProductsBySubCategory(subCategoryId);
-        return ResponseEntity.ok(ApiResponse.success("Products retrieved successfully", responses));
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<List<ProductResponse>>> getProductsByStatus(@PathVariable Status status) {
-        log.info("Fetching products by status: {}", status);
-        List<ProductResponse> responses = productService.getProductsByStatus(status);
+        AllProductResponseDto responses = productService.getAllProducts(request);
         return ResponseEntity.ok(ApiResponse.success("Products retrieved successfully", responses));
     }
 

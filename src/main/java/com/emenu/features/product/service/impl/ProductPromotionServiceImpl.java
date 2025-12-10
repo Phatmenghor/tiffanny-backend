@@ -2,8 +2,11 @@ package com.emenu.features.product.service.impl;
 
 import com.emenu.enums.common.Status;
 import com.emenu.exception.custom.NotFoundException;
-import com.emenu.features.product.dto.request.ProductPromotionRequest;
-import com.emenu.features.product.dto.response.ProductPromotionResponse;
+import com.emenu.features.product.dto.request.AllProductPromotionRequest;
+import com.emenu.features.product.dto.request.CreateProductPromotionRequest;
+import com.emenu.features.product.dto.request.UpdateProductPromotionRequest;
+import com.emenu.features.product.dto.response.AllProductPromotionResponseDto;
+import com.emenu.features.product.dto.response.ProductPromotionDto;
 import com.emenu.features.product.mapper.ProductPromotionMapper;
 import com.emenu.features.product.models.Product;
 import com.emenu.features.product.models.ProductPromotion;
@@ -13,12 +16,16 @@ import com.emenu.features.product.service.ProductPromotionService;
 import com.emenu.features.product.specification.ProductPromotionSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +38,7 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
 
     @Override
     @Transactional
-    public ProductPromotionResponse createPromotion(ProductPromotionRequest request) {
+    public ProductPromotionDto createPromotion(CreateProductPromotionRequest request) {
         log.info("Creating new promotion: {}", request.getName());
         
         Product product = productRepository.findByIdAndIsDeletedFalse(request.getProductId())
@@ -43,19 +50,19 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
         ProductPromotion savedPromotion = promotionRepository.save(promotion);
         
         log.info("Promotion created with ID: {}", savedPromotion.getId());
-        return promotionMapper.toResponse(savedPromotion);
+        return promotionMapper.toDto(savedPromotion);
     }
 
     @Override
     @Transactional
-    public ProductPromotionResponse updatePromotion(UUID id, ProductPromotionRequest request) {
+    public ProductPromotionDto updatePromotion(UUID id, UpdateProductPromotionRequest request) {
         log.info("Updating promotion with ID: {}", id);
         
         ProductPromotion promotion = promotionRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Promotion not found with ID: " + id));
         
         // Update product if changed
-        if (!promotion.getProduct().getId().equals(request.getProductId())) {
+        if (request.getProductId() != null && !promotion.getProduct().getId().equals(request.getProductId())) {
             Product product = productRepository.findByIdAndIsDeletedFalse(request.getProductId())
                     .orElseThrow(() -> new NotFoundException("Product not found with ID: " + request.getProductId()));
             promotion.setProduct(product);
@@ -65,7 +72,7 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
         ProductPromotion updatedPromotion = promotionRepository.save(promotion);
         
         log.info("Promotion updated: {}", id);
-        return promotionMapper.toResponse(updatedPromotion);
+        return promotionMapper.toDto(updatedPromotion);
     }
 
     @Override
@@ -84,48 +91,35 @@ public class ProductPromotionServiceImpl implements ProductPromotionService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProductPromotionResponse getPromotionById(UUID id) {
+    public ProductPromotionDto getPromotionById(UUID id) {
         log.info("Fetching promotion with ID: {}", id);
         
         ProductPromotion promotion = promotionRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Promotion not found with ID: " + id));
         
-        return promotionMapper.toResponse(promotion);
+        return promotionMapper.toDto(promotion);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductPromotionResponse> getAllPromotions() {
-        log.info("Fetching all active promotions");
-        
-        // Use specification to find all active promotions
-        return promotionRepository.findAll(
-                ProductPromotionSpecification.filterPromotions(null, null, null, null, null)
-        ).stream()
-                .map(promotionMapper::toResponse)
-                .collect(Collectors.toList());
-    }
+    public AllProductPromotionResponseDto getAllPromotions(AllProductPromotionRequest request) {
+        log.info("Fetching all promotions with filters");
+        Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ProductPromotionResponse> getPromotionByProduct(UUID productId) {
-        log.info("Fetching promotion for product ID: {}", productId);
-        
-        return promotionRepository.findByProductIdAndIsDeletedFalse(productId)
-                .map(promotion -> List.of(promotionMapper.toResponse(promotion)))
-                .orElse(List.of());
-    }
+        var spec = ProductPromotionSpecification.filterPromotions(
+                request.getSearch(),
+                request.getStatus(),
+                request.getProductId(),
+                null,  // createdFrom
+                null   // createdTo
+        );
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<ProductPromotionResponse> getPromotionsByStatus(Status status) {
-        log.info("Fetching promotions with status: {}", status);
-        
-        // Use specification to filter by status
-        return promotionRepository.findAll(
-                ProductPromotionSpecification.filterPromotions(null, status, null, null, null)
-        ).stream()
-                .map(promotionMapper::toResponse)
-                .collect(Collectors.toList());
+        Page<ProductPromotion> page = promotionRepository.findAll(spec, pageable);
+
+        List<ProductPromotionDto> content = page.stream()
+                .map(promotionMapper::toDto)
+                .toList();
+
+        return promotionMapper.mapToListDto(content, page);
     }
 }
