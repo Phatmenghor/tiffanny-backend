@@ -1,25 +1,26 @@
 package com.emenu.features.product.service;
 
 import com.emenu.enums.common.Status;
-import com.emenu.features.product.dto.request.SubCategoryRequest;
-import com.emenu.features.product.dto.response.SubCategoryResponse;
+import com.emenu.features.product.dto.request.CreateSubCategoryRequest;
+import com.emenu.features.product.dto.request.UpdateSubCategoryRequest;
+import com.emenu.features.product.dto.response.SubCategoryDto;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface SubCategoryService {
 
-    SubCategoryResponse createSubCategory(SubCategoryRequest request);
+    SubCategoryDto createSubCategory(CreateSubCategoryRequest request);
 
-    SubCategoryResponse updateSubCategory(UUID id, SubCategoryRequest request);
+    SubCategoryDto updateSubCategory(UUID id, UpdateSubCategoryRequest request);
 
     void deleteSubCategory(UUID id);
 
-    SubCategoryResponse getSubCategoryById(UUID id);
+    SubCategoryDto getSubCategoryById(UUID id);
 
-    List<SubCategoryResponse> getAllSubCategories();
+    List<SubCategoryDto> getAllSubCategories();
 
-    List<SubCategoryResponse> getSubCategoriesByCategory(UUID categoryId);
+    List<SubCategoryDto> getSubCategoriesByCategory(UUID categoryId);
 
-    List<SubCategoryResponse> getSubCategoriesByStatus(Status status);
+    List<SubCategoryDto> getSubCategoriesByStatus(Status status);
 }

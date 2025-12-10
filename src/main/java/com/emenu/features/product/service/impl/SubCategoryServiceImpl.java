@@ -2,8 +2,9 @@ package com.emenu.features.product.service.impl;
 
 import com.emenu.enums.common.Status;
 import com.emenu.exception.custom.NotFoundException;
-import com.emenu.features.product.dto.request.SubCategoryRequest;
-import com.emenu.features.product.dto.response.SubCategoryResponse;
+import com.emenu.features.product.dto.request.CreateSubCategoryRequest;
+import com.emenu.features.product.dto.request.UpdateSubCategoryRequest;
+import com.emenu.features.product.dto.response.SubCategoryDto;
 import com.emenu.features.product.mapper.SubCategoryMapper;
 import com.emenu.features.product.models.Category;
 import com.emenu.features.product.models.SubCategory;
@@ -31,7 +32,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 
     @Override
     @Transactional
-    public SubCategoryResponse createSubCategory(SubCategoryRequest request) {
+    public SubCategoryDto createSubCategory(CreateSubCategoryRequest request) {
         log.info("Creating new subcategory: {}", request.getName());
         
         Category category = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId())
@@ -43,19 +44,19 @@ public class SubCategoryServiceImpl implements SubCategoryService {
         SubCategory savedSubCategory = subCategoryRepository.save(subCategory);
         
         log.info("SubCategory created with ID: {}", savedSubCategory.getId());
-        return subCategoryMapper.toResponse(savedSubCategory);
+        return subCategoryMapper.toDto(savedSubCategory);
     }
 
     @Override
     @Transactional
-    public SubCategoryResponse updateSubCategory(UUID id, SubCategoryRequest request) {
+    public SubCategoryDto updateSubCategory(UUID id, UpdateSubCategoryRequest request) {
         log.info("Updating subcategory with ID: {}", id);
         
         SubCategory subCategory = subCategoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("SubCategory not found with ID: " + id));
         
         // Update category if changed
-        if (!subCategory.getCategory().getId().equals(request.getCategoryId())) {
+        if (request.getCategoryId() != null && !subCategory.getCategory().getId().equals(request.getCategoryId())) {
             Category category = categoryRepository.findByIdAndIsDeletedFalse(request.getCategoryId())
                     .orElseThrow(() -> new NotFoundException("Category not found with ID: " + request.getCategoryId()));
             subCategory.setCategory(category);
@@ -65,7 +66,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
         SubCategory updatedSubCategory = subCategoryRepository.save(subCategory);
         
         log.info("SubCategory updated: {}", id);
-        return subCategoryMapper.toResponse(updatedSubCategory);
+        return subCategoryMapper.toDto(updatedSubCategory);
     }
 
     @Override
@@ -84,51 +85,51 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public SubCategoryResponse getSubCategoryById(UUID id) {
+    public SubCategoryDto getSubCategoryById(UUID id) {
         log.info("Fetching subcategory with ID: {}", id);
         
         SubCategory subCategory = subCategoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("SubCategory not found with ID: " + id));
         
-        return subCategoryMapper.toResponse(subCategory);
+        return subCategoryMapper.toDto(subCategory);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SubCategoryResponse> getAllSubCategories() {
+    public List<SubCategoryDto> getAllSubCategories() {
         log.info("Fetching all active subcategories");
         
         // Use specification to find all active subcategories
         return subCategoryRepository.findAll(
                 SubCategorySpecification.filterSubCategories(null, null, null, null, null, null)
         ).stream()
-                .map(subCategoryMapper::toResponse)
+                .map(subCategoryMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SubCategoryResponse> getSubCategoriesByCategory(UUID categoryId) {
+    public List<SubCategoryDto> getSubCategoriesByCategory(UUID categoryId) {
         log.info("Fetching subcategories for category ID: {}", categoryId);
         
         // Use specification to filter by category
         return subCategoryRepository.findAll(
                 SubCategorySpecification.filterSubCategories(null, null, categoryId, null, null, null)
         ).stream()
-                .map(subCategoryMapper::toResponse)
+                .map(subCategoryMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<SubCategoryResponse> getSubCategoriesByStatus(Status status) {
+    public List<SubCategoryDto> getSubCategoriesByStatus(Status status) {
         log.info("Fetching subcategories with status: {}", status);
         
         // Use specification to filter by status
         return subCategoryRepository.findAll(
                 SubCategorySpecification.filterSubCategories(null, status, null, null, null, null)
         ).stream()
-                .map(subCategoryMapper::toResponse)
+                .map(subCategoryMapper::toDto)
                 .collect(Collectors.toList());
     }
 }

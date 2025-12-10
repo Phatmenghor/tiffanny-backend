@@ -1,8 +1,9 @@
 package com.emenu.features.product.controller;
 
 import com.emenu.enums.common.Status;
-import com.emenu.features.product.dto.request.SubCategoryRequest;
-import com.emenu.features.product.dto.response.SubCategoryResponse;
+import com.emenu.features.product.dto.request.CreateSubCategoryRequest;
+import com.emenu.features.product.dto.request.UpdateSubCategoryRequest;
+import com.emenu.features.product.dto.response.SubCategoryDto;
 import com.emenu.features.product.service.SubCategoryService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -24,19 +25,19 @@ public class SubCategoryController {
     private final SubCategoryService subCategoryService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<SubCategoryResponse>> createSubCategory(@Valid @RequestBody SubCategoryRequest request) {
+    public ResponseEntity<ApiResponse<SubCategoryDto>> createSubCategory(@Valid @RequestBody CreateSubCategoryRequest request) {
         log.info("Creating subcategory: {}", request.getName());
-        SubCategoryResponse response = subCategoryService.createSubCategory(request);
+        SubCategoryDto response = subCategoryService.createSubCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("SubCategory created successfully", response));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<SubCategoryResponse>> updateSubCategory(
+    public ResponseEntity<ApiResponse<SubCategoryDto>> updateSubCategory(
             @PathVariable UUID id,
-            @Valid @RequestBody SubCategoryRequest request) {
+            @Valid @RequestBody UpdateSubCategoryRequest request) {
         log.info("Updating subcategory: {}", id);
-        SubCategoryResponse response = subCategoryService.updateSubCategory(id, request);
+        SubCategoryDto response = subCategoryService.updateSubCategory(id, request);
         return ResponseEntity.ok(ApiResponse.success("SubCategory updated successfully", response));
     }
 
@@ -48,30 +49,30 @@ public class SubCategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<SubCategoryResponse>> getSubCategoryById(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<SubCategoryDto>> getSubCategoryById(@PathVariable UUID id) {
         log.info("Fetching subcategory: {}", id);
-        SubCategoryResponse response = subCategoryService.getSubCategoryById(id);
+        SubCategoryDto response = subCategoryService.getSubCategoryById(id);
         return ResponseEntity.ok(ApiResponse.success("SubCategory retrieved successfully", response));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<SubCategoryResponse>>> getAllSubCategories() {
+    public ResponseEntity<ApiResponse<List<SubCategoryDto>>> getAllSubCategories() {
         log.info("Fetching all subcategories");
-        List<SubCategoryResponse> responses = subCategoryService.getAllSubCategories();
+        List<SubCategoryDto> responses = subCategoryService.getAllSubCategories();
         return ResponseEntity.ok(ApiResponse.success("SubCategories retrieved successfully", responses));
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<ApiResponse<List<SubCategoryResponse>>> getSubCategoriesByCategory(@PathVariable UUID categoryId) {
+    public ResponseEntity<ApiResponse<List<SubCategoryDto>>> getSubCategoriesByCategory(@PathVariable UUID categoryId) {
         log.info("Fetching subcategories by category: {}", categoryId);
-        List<SubCategoryResponse> responses = subCategoryService.getSubCategoriesByCategory(categoryId);
+        List<SubCategoryDto> responses = subCategoryService.getSubCategoriesByCategory(categoryId);
         return ResponseEntity.ok(ApiResponse.success("SubCategories retrieved successfully", responses));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<List<SubCategoryResponse>>> getSubCategoriesByStatus(@PathVariable Status status) {
+    public ResponseEntity<ApiResponse<List<SubCategoryDto>>> getSubCategoriesByStatus(@PathVariable Status status) {
         log.info("Fetching subcategories by status: {}", status);
-        List<SubCategoryResponse> responses = subCategoryService.getSubCategoriesByStatus(status);
+        List<SubCategoryDto> responses = subCategoryService.getSubCategoriesByStatus(status);
         return ResponseEntity.ok(ApiResponse.success("SubCategories retrieved successfully", responses));
     }
 }
