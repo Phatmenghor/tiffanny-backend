@@ -230,7 +230,7 @@ public class ProductServiceImpl implements ProductService {
     public void incrementProductView(UUID id) {
         log.info("Incrementing product view for ID: {}", id);
         
-        productRepository.findByIdAndIsDeletedFalse(id)
+        Product product = productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
         
         product.setProductView(product.getProductView() + 1);
