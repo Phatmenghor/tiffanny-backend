@@ -21,7 +21,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID>,
     Optional<Product> findByIdAndIsDeletedFalse(UUID id);
     
     // Keep this modifying query as it's not a filter
-    @Modifying
-    @Query("UPDATE Product p SET p.productView = p.productView + 1 WHERE p.id = :id")
-    void incrementProductView(@Param("id") UUID id);
+    // incrementProductView logic moved to service layer
+
 }

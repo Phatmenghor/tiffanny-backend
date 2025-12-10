@@ -233,7 +233,8 @@ public class ProductServiceImpl implements ProductService {
         productRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
         
-        productRepository.incrementProductView(id);
+        product.setProductView(product.getProductView() + 1);
+        productRepository.save(product);
         
         log.info("Product view incremented for ID: {}", id);
     }
