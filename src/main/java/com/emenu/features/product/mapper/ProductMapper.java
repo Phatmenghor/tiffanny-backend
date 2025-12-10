@@ -7,127 +7,55 @@ import com.emenu.features.product.dto.response.ProductVariantResponse;
 import com.emenu.features.product.models.Product;
 import com.emenu.features.product.models.ProductAttribute;
 import com.emenu.features.product.models.ProductVariant;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-@RequiredArgsConstructor
-public class ProductMapper {
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface ProductMapper {
 
-    public ProductResponse toResponse(Product product) {
-        if (product == null) {
-            return null;
+    @Mapping(target = "categoryName", source = "category.name")
+    @Mapping(target = "categoryId", source = "category.id")
+    @Mapping(target = "subCategoryName", source = "subCategory.name")
+    @Mapping(target = "subCategoryId", source = "subCategory.id")
+    @Mapping(target = "attributes", expression = "java(mapAttributes(product))")
+    @Mapping(target = "variants", expression = "java(mapVariants(product))")
+    ProductResponse toResponse(Product product);
+
+    ProductAttributeResponse toAttributeResponse(ProductAttribute attribute);
+
+    ProductVariantResponse toVariantResponse(ProductVariant variant);
+
+    Product toEntity(ProductRequest request);
+
+    @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "variants", ignore = true)
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "subCategory", ignore = true)
+    void updateEntity(ProductRequest request, @MappingTarget Product product);
+
+    default List<ProductAttributeResponse> mapAttributes(Product product) {
+        if (product == null || product.getAttributes() == null) {
+            return Collections.emptyList();
         }
-
-        ProductResponse response = new ProductResponse();
-        response.setId(product.getId());
-        response.setName(product.getName());
-        response.setDescription(product.getDescription());
-        response.setImageUrl(product.getImageUrl());
-        response.setProductView(product.getProductView());
-        response.setStatus(product.getStatus());
-
-        // Category information
-        if (product.getCategory() != null) {
-            response.setCategoryId(product.getCategory().getId());
-            response.setCategoryName(product.getCategory().getName());
-        }
-
-        // SubCategory information
-        if (product.getSubCategory() != null) {
-            response.setSubCategoryId(product.getSubCategory().getId());
-            response.setSubCategoryName(product.getSubCategory().getName());
-        }
-
-        // Map attributes
-        if (product.getAttributes() != null) {
-            response.setAttributes(
-                product.getAttributes().stream()
-                    .filter(attr -> !attr.getIsDeleted())
-                    .map(this::toAttributeResponse)
-                    .collect(Collectors.toList())
-            );
-        }
-
-        // Map variants
-        if (product.getVariants() != null) {
-            response.setVariants(
-                product.getVariants().stream()
-                    .filter(variant -> !variant.getIsDeleted())
-                    .map(this::toVariantResponse)
-                    .collect(Collectors.toList())
-            );
-        }
-
-        // Audit fields
-        response.setCreatedAt(product.getCreatedAt());
-        response.setUpdatedAt(product.getUpdatedAt());
-        response.setCreatedBy(product.getCreatedBy());
-        response.setUpdatedBy(product.getUpdatedBy());
-
-        return response;
+        return product.getAttributes().stream()
+                .filter(attr -> Boolean.FALSE.equals(attr.getIsDeleted()))
+                .map(this::toAttributeResponse)
+                .collect(Collectors.toList());
     }
 
-    public ProductAttributeResponse toAttributeResponse(ProductAttribute attribute) {
-        if (attribute == null) {
-            return null;
+    default List<ProductVariantResponse> mapVariants(Product product) {
+        if (product == null || product.getVariants() == null) {
+            return Collections.emptyList();
         }
-
-        ProductAttributeResponse response = new ProductAttributeResponse();
-        response.setId(attribute.getId());
-        response.setAttributeName(attribute.getAttributeName());
-        response.setAttributeValue(attribute.getAttributeValue());
-        response.setCreatedAt(attribute.getCreatedAt());
-        response.setUpdatedAt(attribute.getUpdatedAt());
-
-        return response;
-    }
-
-    public ProductVariantResponse toVariantResponse(ProductVariant variant) {
-        if (variant == null) {
-            return null;
-        }
-
-        ProductVariantResponse response = new ProductVariantResponse();
-        response.setId(variant.getId());
-        response.setName(variant.getName());
-        response.setPrice(variant.getPrice());
-        response.setStock(variant.getStock());
-        response.setDiscount(variant.getDiscount());
-        response.setDiscountType(variant.getDiscountType());
-        response.setDiscountStartDate(variant.getDiscountStartDate());
-        response.setDiscountEndDate(variant.getDiscountEndDate());
-        response.setImageCover(variant.getImageCover());
-        response.setCreatedAt(variant.getCreatedAt());
-        response.setUpdatedAt(variant.getUpdatedAt());
-
-        return response;
-    }
-
-    public Product toEntity(ProductRequest request) {
-        if (request == null) {
-            return null;
-        }
-
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setImageUrl(request.getImageUrl());
-        product.setStatus(request.getStatus());
-
-        return product;
-    }
-
-    public void updateEntity(ProductRequest request, Product product) {
-        if (request == null || product == null) {
-            return;
-        }
-
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setImageUrl(request.getImageUrl());
-        product.setStatus(request.getStatus());
+        return product.getVariants().stream()
+                .filter(variant -> Boolean.FALSE.equals(variant.getIsDeleted()))
+                .map(this::toVariantResponse)
+                .collect(Collectors.toList());
     }
 }

@@ -3,67 +3,37 @@ package com.emenu.features.product.mapper;
 import com.emenu.features.product.dto.request.CategoryRequest;
 import com.emenu.features.product.dto.response.CategoryResponse;
 import com.emenu.features.product.models.Category;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Component
-public class CategoryMapper {
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface CategoryMapper {
 
-    public CategoryResponse toResponse(Category category) {
-        if (category == null) {
-            return null;
+    @Mapping(target = "subCategoryCount", expression = "java(calculateSubCategoryCount(category))")
+    @Mapping(target = "productCount", expression = "java(calculateProductCount(category))")
+    CategoryResponse toResponse(Category category);
+
+    Category toEntity(CategoryRequest request);
+
+    void updateEntity(CategoryRequest request, @MappingTarget Category category);
+
+    default Long calculateSubCategoryCount(Category category) {
+        if (category == null || category.getSubCategories() == null) {
+            return 0L;
         }
-
-        CategoryResponse response = new CategoryResponse();
-        response.setId(category.getId());
-        response.setName(category.getName());
-        response.setImageUrl(category.getImageUrl());
-        response.setStatus(category.getStatus());
-
-        // Calculate counts
-        response.setSubCategoryCount(
-            category.getSubCategories() != null 
-                ? (long) category.getSubCategories().stream()
-                    .filter(sc -> !sc.getIsDeleted())
-                    .count()
-                : 0L
-        );
-        response.setProductCount(
-            category.getProducts() != null 
-                ? (long) category.getProducts().stream()
-                    .filter(p -> !p.getIsDeleted())
-                    .count()
-                : 0L
-        );
-
-        // Audit fields
-        response.setCreatedAt(category.getCreatedAt());
-        response.setUpdatedAt(category.getUpdatedAt());
-        response.setCreatedBy(category.getCreatedBy());
-        response.setUpdatedBy(category.getUpdatedBy());
-
-        return response;
+        return category.getSubCategories().stream()
+                .filter(sc -> Boolean.FALSE.equals(sc.getIsDeleted()))
+                .count();
     }
 
-    public Category toEntity(CategoryRequest request) {
-        if (request == null) {
-            return null;
+    default Long calculateProductCount(Category category) {
+        if (category == null || category.getProducts() == null) {
+            return 0L;
         }
-
-        Category category = new Category();
-        category.setName(request.getName());
-        category.setImageUrl(request.getImageUrl());
-        category.setStatus(request.getStatus());
-
-        return category;
-    }
-
-    public void updateEntity(CategoryRequest request, Category category) {
-        if (request == null || category == null) {
-            return;
-        }
-
-        category.setName(request.getName());
-        category.setImageUrl(request.getImageUrl());
-        category.setStatus(request.getStatus());
+        return category.getProducts().stream()
+                .filter(p -> Boolean.FALSE.equals(p.getIsDeleted()))
+                .count();
     }
 }
