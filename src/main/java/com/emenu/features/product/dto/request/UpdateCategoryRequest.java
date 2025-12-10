@@ -6,13 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class CategoryRequest {
-
-    @NotBlank(message = "Category name is required")
+public class UpdateCategoryRequest {
     private String name;
-
     private String imageUrl;
-
-    @NotNull(message = "Status is required")
     private Status status;
 }

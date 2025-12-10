@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface CategoryRepository extends JpaRepository<Category, UUID>, 
                                            JpaSpecificationExecutor<Category> {
     Optional<Category> findByIdAndIsDeletedFalse(UUID id);
+    boolean existByName(String name);
+
 }

@@ -2,8 +2,11 @@ package com.emenu.features.product.service;
 
 import com.emenu.enums.common.Status;
 import com.emenu.features.product.dto.filter.CategoryFilterRequest;
-import com.emenu.features.product.dto.request.CategoryRequest;
-import com.emenu.features.product.dto.response.CategoryResponse;
+import com.emenu.features.product.dto.request.AllCategoryRequest;
+import com.emenu.features.product.dto.request.CreateCategoryRequest;
+import com.emenu.features.product.dto.request.UpdateCategoryRequest;
+import com.emenu.features.product.dto.response.AllCategoryResponseDto;
+import com.emenu.features.product.dto.response.CategoryDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,17 +15,13 @@ import java.util.UUID;
 
 public interface CategoryService {
 
-    CategoryResponse createCategory(CategoryRequest request);
+    CategoryDto createCategory(CreateCategoryRequest request);
 
-    CategoryResponse updateCategory(UUID id, CategoryRequest request);
+    CategoryDto updateCategory(UUID id, UpdateCategoryRequest request);
 
     void deleteCategory(UUID id);
 
-    CategoryResponse getCategoryById(UUID id);
+    CategoryDto getCategoryById(UUID id);
 
-    List<CategoryResponse> getAllCategories();
-
-    List<CategoryResponse> getCategoriesByStatus(Status status);
-
-    Page<CategoryResponse> filterCategories(CategoryFilterRequest filter, Pageable pageable);
+    AllCategoryResponseDto getAllCategories(AllCategoryRequest request);
 }

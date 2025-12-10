@@ -2,8 +2,11 @@ package com.emenu.features.product.controller;
 
 import com.emenu.enums.common.Status;
 import com.emenu.features.product.dto.filter.CategoryFilterRequest;
-import com.emenu.features.product.dto.request.CategoryRequest;
-import com.emenu.features.product.dto.response.CategoryResponse;
+import com.emenu.features.product.dto.request.AllCategoryRequest;
+import com.emenu.features.product.dto.request.CreateCategoryRequest;
+import com.emenu.features.product.dto.request.UpdateCategoryRequest;
+import com.emenu.features.product.dto.response.AllCategoryResponseDto;
+import com.emenu.features.product.dto.response.CategoryDto;
 import com.emenu.features.product.service.CategoryService;
 import com.emenu.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -27,19 +30,19 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@Valid @RequestBody CategoryRequest request) {
+    public ResponseEntity<ApiResponse<CategoryDto>> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
         log.info("Creating category: {}", request.getName());
-        CategoryResponse response = categoryService.createCategory(request);
+        CategoryDto response = categoryService.createCategory(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Category created successfully", response));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(
+    public ResponseEntity<ApiResponse<CategoryDto>> updateCategory(
             @PathVariable UUID id,
-            @Valid @RequestBody CategoryRequest request) {
+            @RequestBody UpdateCategoryRequest request) {
         log.info("Updating category: {}", id);
-        CategoryResponse response = categoryService.updateCategory(id, request);
+        CategoryDto response = categoryService.updateCategory(id, request);
         return ResponseEntity.ok(ApiResponse.success("Category updated successfully", response));
     }
 
@@ -51,32 +54,32 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<CategoryDto>> getCategoryById(@PathVariable UUID id) {
         log.info("Fetching category: {}", id);
-        CategoryResponse response = categoryService.getCategoryById(id);
+        CategoryDto response = categoryService.getCategoryById(id);
         return ResponseEntity.ok(ApiResponse.success("Category retrieved successfully", response));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories() {
+    public ResponseEntity<ApiResponse<AllCategoryResponseDto>> getAllCategories(@RequestBody AllCategoryRequest request) {
         log.info("Fetching all categories");
-        List<CategoryResponse> responses = categoryService.getAllCategories();
+        AllCategoryResponseDto responses = categoryService.getAllCategories(request);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", responses));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategoriesByStatus(@PathVariable Status status) {
+    public ResponseEntity<ApiResponse<List<CategoryDto>>> getCategoriesByStatus(@PathVariable Status status) {
         log.info("Fetching categories by status: {}", status);
-        List<CategoryResponse> responses = categoryService.getCategoriesByStatus(status);
+        List<CategoryDto> responses = categoryService.getCategoriesByStatus(status);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", responses));
     }
 
     @PostMapping("/filter")
-    public ResponseEntity<ApiResponse<Page<CategoryResponse>>> filterCategories(
+    public ResponseEntity<ApiResponse<Page<CategoryDto>>> filterCategories(
             @RequestBody CategoryFilterRequest filter,
             Pageable pageable) {
         log.info("Filtering categories with: {}", filter);
-        Page<CategoryResponse> responses = categoryService.filterCategories(filter, pageable);
+        Page<CategoryDto> responses = categoryService.filterCategories(filter, pageable);
         return ResponseEntity.ok(ApiResponse.success("Categories filtered successfully", responses));
     }
 }

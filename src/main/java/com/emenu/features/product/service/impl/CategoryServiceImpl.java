@@ -1,19 +1,25 @@
 package com.emenu.features.product.service.impl;
 
 import com.emenu.enums.common.Status;
+import com.emenu.exception.custom.AlreadyExistException;
 import com.emenu.exception.custom.NotFoundException;
 import com.emenu.features.product.dto.filter.CategoryFilterRequest;
-import com.emenu.features.product.dto.request.CategoryRequest;
-import com.emenu.features.product.dto.response.CategoryResponse;
+import com.emenu.features.product.dto.request.AllCategoryRequest;
+import com.emenu.features.product.dto.request.CreateCategoryRequest;
+import com.emenu.features.product.dto.request.UpdateCategoryRequest;
+import com.emenu.features.product.dto.response.AllCategoryResponseDto;
+import com.emenu.features.product.dto.response.CategoryDto;
 import com.emenu.features.product.mapper.CategoryMapper;
 import com.emenu.features.product.models.Category;
 import com.emenu.features.product.repository.CategoryRepository;
 import com.emenu.features.product.service.CategoryService;
-import com.emenu.features.product.specification.CategorySpecification;
+import com.emenu.features.product.specification.CategorySpec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,19 +37,24 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryResponse createCategory(CategoryRequest request) {
+    public CategoryDto createCategory(CreateCategoryRequest request) {
         log.info("Creating new category: {}", request.getName());
-        
+
+        if(categoryRepository.existByName(request.getName())) {
+            log.info("Category with name {} failed to create", request.getName());
+            throw new AlreadyExistException("Category with name " + request.getName() + " Already exist!");
+        }
+
         Category category = categoryMapper.toEntity(request);
         Category savedCategory = categoryRepository.save(category);
         
         log.info("Category created with ID: {}", savedCategory.getId());
-        return categoryMapper.toResponse(savedCategory);
+        return categoryMapper.toDto(savedCategory);
     }
 
     @Override
     @Transactional
-    public CategoryResponse updateCategory(UUID id, CategoryRequest request) {
+    public CategoryDto updateCategory(UUID id, UpdateCategoryRequest request) {
         log.info("Updating category with ID: {}", id);
         
         Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
@@ -53,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category updatedCategory = categoryRepository.save(category);
         
         log.info("Category updated: {}", id);
-        return categoryMapper.toResponse(updatedCategory);
+        return categoryMapper.toDto(updatedCategory);
     }
 
     @Override
@@ -72,54 +83,30 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public CategoryResponse getCategoryById(UUID id) {
+    public CategoryDto getCategoryById(UUID id) {
         log.info("Fetching category with ID: {}", id);
         
         Category category = categoryRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id));
         
-        return categoryMapper.toResponse(category);
+        return categoryMapper.toDto(category);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CategoryResponse> getAllCategories() {
+    public AllCategoryResponseDto getAllCategories(AllCategoryRequest request) {
         log.info("Fetching all active categories");
-        
-        // Use specification to find all active (non-deleted) categories
-        return categoryRepository.findAll(
-                CategorySpecification.filterCategories(null, null, null, null)
-        ).stream()
-                .map(categoryMapper::toResponse)
-                .collect(Collectors.toList());
-    }
+        Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<CategoryResponse> getCategoriesByStatus(Status status) {
-        log.info("Fetching categories with status: {}", status);
-        
-        // Use specification to filter by status
-        return categoryRepository.findAll(
-                CategorySpecification.filterCategories(null, status, null, null)
-        ).stream()
-                .map(categoryMapper::toResponse)
-                .collect(Collectors.toList());
-    }
+        var spec = CategorySpec.hasStatus(request.getStatus())
+                .and(CategorySpec.searchByName(request.getSearch()));
 
-    @Override
-    @Transactional(readOnly = true)
-    public Page<CategoryResponse> filterCategories(CategoryFilterRequest filter, Pageable pageable) {
-        log.info("Filtering categories with criteria: {}", filter);
-        
-        return categoryRepository.findAll(
-                CategorySpecification.filterCategories(
-                    filter.getSearchTerm(),
-                    filter.getStatus(),
-                    filter.getCreatedFrom(),
-                    filter.getCreatedTo()
-                ),
-                pageable
-        ).map(categoryMapper::toResponse);
+        Page<Category> page = categoryRepository.findAll(spec,pageable);
+
+        List<CategoryDto> content = page.stream()
+                .map(categoryMapper::toDto)
+                .toList();
+
+        return categoryMapper.mapToListDto(content, page);
     }
 }
