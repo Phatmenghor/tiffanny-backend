@@ -10,17 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "products", indexes = {
-        @Index(name = "idx_product_status", columnList = "status"),
-        @Index(name = "idx_product_deleted", columnList = "is_deleted"),
-        @Index(name = "idx_product_category_id", columnList = "category_id"),
-        @Index(name = "idx_product_subcategory_id", columnList = "sub_category_id"),
-        @Index(name = "idx_product_name", columnList = "name")
-})
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
@@ -39,6 +33,9 @@ public class Product extends BaseUUIDEntity {
 
     @Column(name = "product_view", nullable = false)
     private Long productView = 0L;
+
+    @Column(name = "base_price", precision = 10, scale = 2)
+    private BigDecimal basePrice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)

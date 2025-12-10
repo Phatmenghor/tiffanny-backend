@@ -9,11 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "product_promotions", indexes = {
-        @Index(name = "idx_product_promo_status", columnList = "status"),
-        @Index(name = "idx_product_promo_deleted", columnList = "is_deleted"),
-        @Index(name = "idx_product_promo_product_id", columnList = "product_id")
-})
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

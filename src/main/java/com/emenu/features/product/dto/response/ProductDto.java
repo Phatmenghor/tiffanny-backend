@@ -3,6 +3,7 @@ package com.emenu.features.product.dto.response;
 import com.emenu.enums.common.Status;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ public class ProductDto {
     private String description;
     private String imageUrl;
     private Long productView;
+    private BigDecimal basePrice;
     private Status status;
 
     private String categoryName;

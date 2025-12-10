@@ -12,11 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "categories", indexes = {
-        @Index(name = "idx_category_status", columnList = "status"),
-        @Index(name = "idx_category_deleted", columnList = "is_deleted"),
-        @Index(name = "idx_category_name", columnList = "name")
-})
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
