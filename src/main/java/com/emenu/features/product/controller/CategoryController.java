@@ -66,20 +66,4 @@ public class CategoryController {
         AllCategoryResponseDto responses = categoryService.getAllCategories(request);
         return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", responses));
     }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<List<CategoryDto>>> getCategoriesByStatus(@PathVariable Status status) {
-        log.info("Fetching categories by status: {}", status);
-        List<CategoryDto> responses = categoryService.getCategoriesByStatus(status);
-        return ResponseEntity.ok(ApiResponse.success("Categories retrieved successfully", responses));
-    }
-
-    @PostMapping("/filter")
-    public ResponseEntity<ApiResponse<Page<CategoryDto>>> filterCategories(
-            @RequestBody CategoryFilterRequest filter,
-            Pageable pageable) {
-        log.info("Filtering categories with: {}", filter);
-        Page<CategoryDto> responses = categoryService.filterCategories(filter, pageable);
-        return ResponseEntity.ok(ApiResponse.success("Categories filtered successfully", responses));
-    }
 }
