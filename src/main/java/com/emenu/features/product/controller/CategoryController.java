@@ -60,7 +60,7 @@ public class CategoryController {
         return ResponseEntity.ok(ApiResponse.success("Category retrieved successfully", response));
     }
 
-    @GetMapping
+    @PostMapping("/all")
     public ResponseEntity<ApiResponse<AllCategoryResponseDto>> getAllCategories(@RequestBody AllCategoryRequest request) {
         log.info("Fetching all categories");
         AllCategoryResponseDto responses = categoryService.getAllCategories(request);

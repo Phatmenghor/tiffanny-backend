@@ -2,8 +2,10 @@ package com.emenu.features.product.service.impl;
 
 import com.emenu.enums.common.Status;
 import com.emenu.exception.custom.NotFoundException;
+import com.emenu.features.product.dto.request.AllSubCategoryRequest;
 import com.emenu.features.product.dto.request.CreateSubCategoryRequest;
 import com.emenu.features.product.dto.request.UpdateSubCategoryRequest;
+import com.emenu.features.product.dto.response.AllSubCategoryResponseDto;
 import com.emenu.features.product.dto.response.SubCategoryDto;
 import com.emenu.features.product.mapper.SubCategoryMapper;
 import com.emenu.features.product.models.Category;
@@ -14,12 +16,15 @@ import com.emenu.features.product.service.SubCategoryService;
 import com.emenu.features.product.specification.SubCategorySpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -96,40 +101,25 @@ public class SubCategoryServiceImpl implements SubCategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SubCategoryDto> getAllSubCategories() {
-        log.info("Fetching all active subcategories");
-        
-        // Use specification to find all active subcategories
-        return subCategoryRepository.findAll(
-                SubCategorySpecification.filterSubCategories(null, null, null, null, null, null)
-        ).stream()
-                .map(subCategoryMapper::toDto)
-                .collect(Collectors.toList());
-    }
+    public AllSubCategoryResponseDto getAllSubCategories(AllSubCategoryRequest request) {
+        log.info("Fetching all subcategories with filters");
+        Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), Sort.by(Sort.Direction.DESC, "createdAt"));
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<SubCategoryDto> getSubCategoriesByCategory(UUID categoryId) {
-        log.info("Fetching subcategories for category ID: {}", categoryId);
-        
-        // Use specification to filter by category
-        return subCategoryRepository.findAll(
-                SubCategorySpecification.filterSubCategories(null, null, categoryId, null, null, null)
-        ).stream()
-                .map(subCategoryMapper::toDto)
-                .collect(Collectors.toList());
-    }
+        var spec = SubCategorySpecification.filterSubCategories(
+                request.getSearch(),
+                request.getStatus(),
+                request.getCategoryId(),
+                null,  // createdFrom
+                null,  // createdTo
+                 null  // isDeleted
+        );
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<SubCategoryDto> getSubCategoriesByStatus(Status status) {
-        log.info("Fetching subcategories with status: {}", status);
-        
-        // Use specification to filter by status
-        return subCategoryRepository.findAll(
-                SubCategorySpecification.filterSubCategories(null, status, null, null, null, null)
-        ).stream()
+        Page<SubCategory> page = subCategoryRepository.findAll(spec, pageable);
+
+        List<SubCategoryDto> content = page.stream()
                 .map(subCategoryMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
+
+        return subCategoryMapper.mapToListDto(content, page);
     }
 }

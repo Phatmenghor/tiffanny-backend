@@ -57,7 +57,7 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success("Product retrieved successfully", response));
     }
 
-    @GetMapping
+    @PostMapping("/all")
     public ResponseEntity<ApiResponse<AllProductResponseDto>> getAllProducts(@RequestBody AllProductRequest request) {
         log.info("Fetching all products");
         AllProductResponseDto responses = productService.getAllProducts(request);

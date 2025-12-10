@@ -1,8 +1,10 @@
 package com.emenu.features.product.controller;
 
 import com.emenu.enums.common.Status;
+import com.emenu.features.product.dto.request.AllSubCategoryRequest;
 import com.emenu.features.product.dto.request.CreateSubCategoryRequest;
 import com.emenu.features.product.dto.request.UpdateSubCategoryRequest;
+import com.emenu.features.product.dto.response.AllSubCategoryResponseDto;
 import com.emenu.features.product.dto.response.SubCategoryDto;
 import com.emenu.features.product.service.SubCategoryService;
 import com.emenu.shared.dto.ApiResponse;
@@ -55,24 +57,10 @@ public class SubCategoryController {
         return ResponseEntity.ok(ApiResponse.success("SubCategory retrieved successfully", response));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<SubCategoryDto>>> getAllSubCategories() {
+    @PostMapping("/all")
+    public ResponseEntity<ApiResponse<AllSubCategoryResponseDto>> getAllSubCategories(@RequestBody AllSubCategoryRequest request) {
         log.info("Fetching all subcategories");
-        List<SubCategoryDto> responses = subCategoryService.getAllSubCategories();
-        return ResponseEntity.ok(ApiResponse.success("SubCategories retrieved successfully", responses));
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<ApiResponse<List<SubCategoryDto>>> getSubCategoriesByCategory(@PathVariable UUID categoryId) {
-        log.info("Fetching subcategories by category: {}", categoryId);
-        List<SubCategoryDto> responses = subCategoryService.getSubCategoriesByCategory(categoryId);
-        return ResponseEntity.ok(ApiResponse.success("SubCategories retrieved successfully", responses));
-    }
-
-    @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<List<SubCategoryDto>>> getSubCategoriesByStatus(@PathVariable Status status) {
-        log.info("Fetching subcategories by status: {}", status);
-        List<SubCategoryDto> responses = subCategoryService.getSubCategoriesByStatus(status);
+        AllSubCategoryResponseDto responses = subCategoryService.getAllSubCategories(request);
         return ResponseEntity.ok(ApiResponse.success("SubCategories retrieved successfully", responses));
     }
 }

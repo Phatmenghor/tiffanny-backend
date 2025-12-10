@@ -57,7 +57,7 @@ public class ProductPromotionController {
         return ResponseEntity.ok(ApiResponse.success("Promotion retrieved successfully", response));
     }
 
-    @GetMapping
+    @PostMapping("/all")
     public ResponseEntity<ApiResponse<AllProductPromotionResponseDto>> getAllPromotions(@RequestBody AllProductPromotionRequest request) {
         log.info("Fetching all promotions");
         AllProductPromotionResponseDto responses = promotionService.getAllPromotions(request);
