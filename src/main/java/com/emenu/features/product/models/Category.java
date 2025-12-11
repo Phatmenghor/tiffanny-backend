@@ -16,6 +16,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "categories")
 public class Category extends BaseUUIDEntity {
 
     @Column(name = "image_url", length = 500)

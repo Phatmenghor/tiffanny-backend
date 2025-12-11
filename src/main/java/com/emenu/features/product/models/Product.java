@@ -15,6 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "products", indexes = {
+        @Index(name = "idx_product_status", columnList = "status"),
+        @Index(name = "idx_product_deleted", columnList = "is_deleted"),
+        @Index(name = "idx_product_category_id", columnList = "category_id"),
+        @Index(name = "idx_product_subcategory_id", columnList = "sub_category_id"),
+        @Index(name = "idx_product_name", columnList = "name")
+})
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
