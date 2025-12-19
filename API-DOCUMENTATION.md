@@ -5,11 +5,12 @@ Base URL: `http://your-server:9090/api/v1`
 ## Table of Contents
 1. [Product API](#product-api)
 2. [Category API](#category-api)
-3. [About Us API](#about-us-api)
-4. [Banner API](#banner-api)
-5. [Order API](#order-api)
-6. [Common Response Structure](#common-response-structure)
-7. [Enums](#enums)
+3. [SubCategory API](#subcategory-api)
+4. [About Us API](#about-us-api)
+5. [Banner API](#banner-api)
+6. [Order API](#order-api)
+7. [Common Response Structure](#common-response-structure)
+8. [Enums](#enums)
 
 ---
 
@@ -249,6 +250,107 @@ Base URL: `http://your-server:9090/api/v1`
 
 ### 5. Delete Category
 **Endpoint:** `DELETE /categories/{id}`
+
+---
+
+## SubCategory API
+
+### 1. Get All SubCategories (Paginated)
+**Endpoint:** `POST /subcategories/all`
+
+**Request Body:**
+```json
+{
+  "pageNo": 1,
+  "pageSize": 10,
+  "search": "living",
+  "status": "ACTIVE",
+  "categoryId": "a1111111-1111-1111-1111-111111111111"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "SubCategories retrieved successfully",
+  "data": {
+    "content": [
+      {
+        "id": "b1111111-1111-1111-1111-111111111111",
+        "name": "Sofas",
+        "imageUrl": "/api/images/subcategory-sofas.jpg",
+        "status": "ACTIVE",
+        "categoryName": "Living Room",
+        "categoryId": "a1111111-1111-1111-1111-111111111111",
+        "productCount": 0,
+        "createdAt": "2025-12-12T10:00:00",
+        "updatedAt": "2025-12-12T10:00:00",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
+    "pageNo": 1,
+    "pageSize": 10,
+    "totalElements": 5,
+    "totalPages": 1,
+    "last": true
+  }
+}
+```
+
+### 2. Get SubCategory by ID
+**Endpoint:** `GET /subcategories/{id}`
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "SubCategory retrieved successfully",
+  "data": {
+    "id": "b1111111-1111-1111-1111-111111111111",
+    "name": "Sofas",
+    "imageUrl": "/api/images/subcategory-sofas.jpg",
+    "status": "ACTIVE",
+    "categoryName": "Living Room",
+    "categoryId": "a1111111-1111-1111-1111-111111111111",
+    "productCount": 0,
+    "createdAt": "2025-12-12T10:00:00",
+    "updatedAt": "2025-12-12T10:00:00",
+    "createdBy": "admin",
+    "updatedBy": "admin"
+  }
+}
+```
+
+### 3. Create SubCategory
+**Endpoint:** `POST /subcategories`
+
+**Request Body:**
+```json
+{
+  "name": "Sofas",
+  "imageUrl": "/api/images/subcategory-sofas.jpg",
+  "status": "ACTIVE",
+  "categoryId": "a1111111-1111-1111-1111-111111111111"
+}
+```
+
+### 4. Update SubCategory
+**Endpoint:** `PUT /subcategories/{id}`
+
+**Request Body:**
+```json
+{
+  "name": "Updated Sofas",
+  "imageUrl": "/api/images/updated-subcategory.jpg",
+  "status": "ACTIVE",
+  "categoryId": "a1111111-1111-1111-1111-111111111111"
+}
+```
+
+### 5. Delete SubCategory
+**Endpoint:** `DELETE /subcategories/{id}`
 
 ---
 

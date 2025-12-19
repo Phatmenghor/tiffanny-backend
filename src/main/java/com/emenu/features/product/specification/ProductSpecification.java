@@ -24,7 +24,8 @@ public class ProductSpecification {
             Long minViews,
             Long maxViews,
             LocalDateTime createdFrom,
-            LocalDateTime createdTo) {
+            LocalDateTime createdTo,
+            Boolean hasDiscount) {
         
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -83,6 +84,42 @@ public class ProductSpecification {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(
                     root.get("createdAt"), createdTo
                 ));
+            }
+
+            // Filter by discount (hasDiscount)
+            if (Boolean.TRUE.equals(hasDiscount)) {
+                // Join with variants to check discounts
+                // This assumes Product has a "variants" OneToMany relationship
+                var variantsJoin = root.join("variants");
+                
+                // Discount > 0
+                Predicate discountExists = criteriaBuilder.greaterThan(
+                    variantsJoin.get("discount"), BigDecimal.ZERO
+                );
+
+                // Start Date <= NOW (or null)
+                Predicate startDateValid = criteriaBuilder.or(
+                    criteriaBuilder.isNull(variantsJoin.get("discountStartDate")),
+                    criteriaBuilder.lessThanOrEqualTo(variantsJoin.get("discountStartDate"), LocalDateTime.now())
+                );
+                
+                // End Date >= NOW (or null)
+                Predicate endDateValid = criteriaBuilder.or(
+                    criteriaBuilder.isNull(variantsJoin.get("discountEndDate")),
+                    criteriaBuilder.greaterThanOrEqualTo(variantsJoin.get("discountEndDate"), LocalDateTime.now())
+                );
+                
+                // Variant not deleted (if applicable, assuming variants have isDeleted)
+                Predicate variantNotDeleted = criteriaBuilder.isFalse(variantsJoin.get("isDeleted"));
+
+                predicates.add(criteriaBuilder.and(
+                    discountExists, 
+                    startDateValid, 
+                    endDateValid,
+                    variantNotDeleted
+                ));
+                 // Ensure distinct results since we joined a OneToMany
+                query.distinct(true);
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

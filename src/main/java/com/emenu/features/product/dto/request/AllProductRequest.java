@@ -23,4 +23,5 @@ public class AllProductRequest {
     private Status status;
     private UUID categoryId;
     private UUID subCategoryId;
+    private Boolean hasDiscount;
 }

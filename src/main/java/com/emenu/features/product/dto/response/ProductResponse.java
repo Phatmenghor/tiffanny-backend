@@ -17,6 +17,7 @@ public class ProductResponse {
     private String imageUrl;
     private Long productView;
     private Status status;
+    private List<ProductDto> suggestions;
 
     private String categoryName;
     private UUID categoryId;

@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecificationExecutor<Order> {
     Optional<Order> findByIdAndIsDeletedFalse(UUID id);
     Optional<Order> findByOrderNumberAndIsDeletedFalse(String orderNumber);
+    
+    long countByStatus(com.emenu.features.order.enums.OrderStatus status);
 }

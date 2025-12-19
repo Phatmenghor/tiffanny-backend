@@ -41,6 +41,17 @@ public class ProductServiceImpl implements ProductService {
         
         Product product = productMapper.toEntity(request);
         Product savedProduct = productRepository.save(product);
+
+        if (request.getSuggestionIds() != null && !request.getSuggestionIds().isEmpty()) {
+            List<Product> suggestedProducts = productRepository.findAllById(request.getSuggestionIds());
+            suggestedProducts.forEach(suggested -> {
+                com.emenu.features.product.models.ProductSuggestion suggestion = new com.emenu.features.product.models.ProductSuggestion();
+                suggestion.setProduct(savedProduct);
+                suggestion.setSuggestedProduct(suggested);
+                savedProduct.getSuggestions().add(suggestion);
+            });
+            productRepository.save(savedProduct);
+        }
         
         log.info("Product created with ID: {}", savedProduct.getId());
         return productMapper.toDto(savedProduct);
@@ -55,6 +66,20 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
         
         productMapper.updateEntity(request, product);
+        
+        if (request.getSuggestionIds() != null) {
+            product.getSuggestions().clear();
+            if (!request.getSuggestionIds().isEmpty()) {
+                List<Product> suggestedProducts = productRepository.findAllById(request.getSuggestionIds());
+                suggestedProducts.forEach(suggested -> {
+                    com.emenu.features.product.models.ProductSuggestion suggestion = new com.emenu.features.product.models.ProductSuggestion();
+                    suggestion.setProduct(product);
+                    suggestion.setSuggestedProduct(suggested);
+                    product.getSuggestions().add(suggestion);
+                });
+            }
+        }
+        
         Product updatedProduct = productRepository.save(product);
         
         log.info("Product updated: {}", id);
@@ -99,11 +124,12 @@ public class ProductServiceImpl implements ProductService {
                 request.getSubCategoryId(),
                 null,  // minPrice
                 null,  // maxPrice
-                null,  // discountType
                 null,  // inStock
+                null,  // minViews
+                null,  // maxViews
                 null,  // createdFrom
                 null,  // createdTo
-                null  // isDeleted
+                request.getHasDiscount() // hasDiscount
         );
 
         Page<Product> page = productRepository.findAll(spec, pageable);

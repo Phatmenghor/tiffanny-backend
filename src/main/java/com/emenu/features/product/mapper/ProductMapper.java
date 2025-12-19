@@ -42,6 +42,7 @@ public abstract class ProductMapper {
     @Mapping(target = "subCategoryId", source = "subCategory.id")
     @Mapping(target = "attributes", expression = "java(mapAttributes(product))")
     @Mapping(target = "variants", expression = "java(mapVariants(product))")
+    @Mapping(target = "suggestions", expression = "java(mapSuggestions(product))")
     public abstract ProductDto toDto(Product product);
 
     public abstract ProductAttributeResponse toAttributeResponse(ProductAttribute attribute);
@@ -88,8 +89,12 @@ public abstract class ProductMapper {
                 variant.setStock(varReq.getStock());
                 variant.setDiscount(varReq.getDiscount());
                 variant.setDiscountType(varReq.getDiscountType());
-                variant.setDiscountStartDate(varReq.getDiscountStartDate());
-                variant.setDiscountEndDate(varReq.getDiscountEndDate());
+                if (varReq.getDiscountStartDate() != null) {
+                    variant.setDiscountStartDate(varReq.getDiscountStartDate().atStartOfDay());
+                }
+                if (varReq.getDiscountEndDate() != null) {
+                    variant.setDiscountEndDate(varReq.getDiscountEndDate().atTime(23, 59, 59));
+                }
                 variant.setImageCover(varReq.getImageCover());
                 variant.setProduct(product);
                 product.getVariants().add(variant);
@@ -146,8 +151,12 @@ public abstract class ProductMapper {
                     variant.setStock(varReq.getStock());
                     variant.setDiscount(varReq.getDiscount());
                     variant.setDiscountType(varReq.getDiscountType());
-                    variant.setDiscountStartDate(varReq.getDiscountStartDate());
-                    variant.setDiscountEndDate(varReq.getDiscountEndDate());
+                    if (varReq.getDiscountStartDate() != null) {
+                        variant.setDiscountStartDate(varReq.getDiscountStartDate().atStartOfDay());
+                    }
+                    if (varReq.getDiscountEndDate() != null) {
+                        variant.setDiscountEndDate(varReq.getDiscountEndDate().atTime(23, 59, 59));
+                    }
                     variant.setImageCover(varReq.getImageCover());
                     variant.setProduct(product);
                     product.getVariants().add(variant);
@@ -185,6 +194,32 @@ public abstract class ProductMapper {
         return product.getVariants().stream()
                 .filter(variant -> Boolean.FALSE.equals(variant.getIsDeleted()))
                 .map(this::toVariantResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductDto> mapSuggestions(Product product) {
+        if (product == null || product.getSuggestions() == null) {
+            return Collections.emptyList();
+        }
+        return product.getSuggestions().stream()
+                .map(suggestion -> {
+                    Product p = suggestion.getSuggestedProduct();
+                    ProductDto dto = new ProductDto();
+                    dto.setId(p.getId());
+                    dto.setName(p.getName());
+                    dto.setImageUrl(p.getImageUrl());
+                    dto.setBasePrice(p.getBasePrice());
+                    dto.setStatus(p.getStatus());
+                    if (p.getCategory() != null) {
+                        dto.setCategoryId(p.getCategory().getId());
+                        dto.setCategoryName(p.getCategory().getName());
+                    }
+                    if (p.getSubCategory() != null) {
+                         dto.setSubCategoryId(p.getSubCategory().getId());
+                         dto.setSubCategoryName(p.getSubCategory().getName());
+                    }
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 }

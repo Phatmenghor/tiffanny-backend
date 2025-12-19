@@ -64,4 +64,7 @@ public class Product extends BaseUUIDEntity {
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private ProductPromotion promotion;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProductSuggestion> suggestions = new ArrayList<>();
 }

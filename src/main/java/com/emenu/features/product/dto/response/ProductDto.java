@@ -16,9 +16,9 @@ public class ProductDto {
     private String name;
     private String description;
     private String imageUrl;
-    private Long productView;
     private BigDecimal basePrice;
     private Status status;
+    private List<ProductDto> suggestions;
 
     private String categoryName;
     private UUID categoryId;

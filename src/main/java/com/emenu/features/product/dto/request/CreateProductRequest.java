@@ -36,4 +36,6 @@ public class CreateProductRequest {
 
     @Valid
     private List<ProductVariantRequest> variants = new ArrayList<>();
+
+    private List<UUID> suggestionIds;
 }

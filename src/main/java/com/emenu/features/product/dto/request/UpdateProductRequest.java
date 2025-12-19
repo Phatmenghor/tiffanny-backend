@@ -25,4 +25,6 @@ public class UpdateProductRequest {
 
     @Valid
     private List<ProductVariantRequest> variants = new ArrayList<>();
+
+    private List<UUID> suggestionIds;
 }

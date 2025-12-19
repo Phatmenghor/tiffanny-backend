@@ -4,7 +4,7 @@ import com.emenu.enums.product.DiscountType;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class ProductVariantRequest {
@@ -19,9 +19,9 @@ public class ProductVariantRequest {
 
     private DiscountType discountType;
 
-    private LocalDateTime discountStartDate;
+    private LocalDate discountStartDate;
 
-    private LocalDateTime discountEndDate;
+    private LocalDate discountEndDate;
 
     private String imageCover;
 }
